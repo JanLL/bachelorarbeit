@@ -1,1 +1,0 @@
-/home/argo/src/inferno/include/inferno/learning/learners/stochastic_gradient.hxx
