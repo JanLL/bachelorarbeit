@@ -5,6 +5,8 @@ import copy
 import pylab
 import time
 import sys
+from scipy import stats
+
 
 import inferno
 
@@ -133,22 +135,25 @@ def getNodeCoordsAroundEdge(rag, edge, numNodesAroundEdge):
     return nodesCoordsU, nodesCoordsV
 
 
-def getEdgeWeightsFromNodesAround2(rag, img, numNodesAroundEdge, variance=False, meanRatio=False, medianRatio=False):
+
+
+            
+def getEdgeWeightsFromNodesAround(rag, img, numNodesAroundEdge, variance=False, meanRatio=False, medianRatio=False):
+
+    if (len(img.shape)==3):
+        channels = img.shape[2]
+    else:
+        channels = 1
 
     if (variance == True):
-        varianceR = np.zeros((rag.edgeNum,1))
-        varianceG = np.zeros((rag.edgeNum,1))
-        varianceB = np.zeros((rag.edgeNum,1))
+        variances = np.zeros((rag.edgeNum, channels))
     
     if (meanRatio == True):
-        meanRatioR = np.zeros((rag.edgeNum,1))
-        meanRatioG = np.zeros((rag.edgeNum,1))
-        meanRatioB = np.zeros((rag.edgeNum,1))
+        meanRatios = np.zeros((rag.edgeNum, channels))        
         
     if (medianRatio == True):
-        medianRatioR = np.zeros((rag.edgeNum,1))
-        medianRatioG = np.zeros((rag.edgeNum,1))
-        medianRatioB = np.zeros((rag.edgeNum,1))
+        medianRatios = np.zeros((rag.edgeNum, channels))
+        
     
     for i, e in enumerate(rag.edgeIter()):
         nodeCoords = getNodeCoordsAroundEdge(rag, e, numNodesAroundEdge)
@@ -156,87 +161,211 @@ def getEdgeWeightsFromNodesAround2(rag, img, numNodesAroundEdge, variance=False,
         nNodesV = len(nodeCoords[1])
         
         if (variance == True):
-            currVarR = np.zeros(nNodesU + nNodesV)
-            currVarG = np.zeros(nNodesU + nNodesV)
-            currVarB = np.zeros(nNodesU + nNodesV)
+            currVar = np.zeros((nNodesU + nNodesV, channels))
+         
             
-        if (meanRatio == True or medianRatio):
-            valuesUR = np.zeros(nNodesU)
-            valuesUG = np.zeros(nNodesU)
-            valuesUB = np.zeros(nNodesU)
-            
-            valuesVR = np.zeros(nNodesV)
-            valuesVG = np.zeros(nNodesV)
-            valuesVB = np.zeros(nNodesV)
+        if (meanRatio == True or medianRatio == True):
+            valuesU = np.zeros((nNodesU, channels))
+            valuesV = np.zeros((nNodesV, channels))
+      
             
         for j, n in enumerate(nodeCoords[0]):
             if (variance == True):
-                currVarR[j] = img[ n[0], n[1], 0 ]
-                currVarG[j] = img[ n[0], n[1], 1 ]
-                currVarB[j] = img[ n[0], n[1], 2 ]
-                
+                currVar[j,:] = img[ n[0], n[1], :]
+                                  
             if (meanRatio == True or medianRatio == True):
-                valuesUR[j] = img[ n[0], n[1], 0 ]
-                valuesUG[j] = img[ n[0], n[1], 1 ]
-                valuesUB[j] = img[ n[0], n[1], 2 ]
+                valuesU[j,:] = img[ n[0], n[1], :]
+             
                 
         for j, n in enumerate(nodeCoords[1]):
             if (variance == True):
-                currVarR[j+nNodesU] = img[ n[0], n[1], 0 ]
-                currVarG[j+nNodesU] = img[ n[0], n[1], 1 ]
-                currVarB[j+nNodesU] = img[ n[0], n[1], 2 ]
+                currVar[j+nNodesU, :] = img[ n[0], n[1], :]            
                 
             if (meanRatio == True or medianRatio == True):
-                valuesVR[j] = img[ n[0], n[1], 0 ]
-                valuesVG[j] = img[ n[0], n[1], 1 ]
-                valuesVB[j] = img[ n[0], n[1], 2 ]
+                valuesV[j, :] = img[ n[0], n[1], :]
+                
     
+        
         if (variance == True):
-            varianceR[i] = currVarR.var()
-            varianceG[i] = currVarG.var()
-            varianceB[i] = currVarB.var()
-            
+            for ch in range(channels):
+                variances[i, ch] = currVar[:, ch].var()
+           
+                
         if (meanRatio == True):
-            meanUR = valuesUR.mean()
-            meanVR = valuesVR.mean()
-            meanRatioR[i] = max(meanUR, meanVR) / (min(meanUR, meanVR) + 1e-8)
-            meanUG = valuesUG.mean()
-            meanVG = valuesVG.mean()
-            meanRatioG[i] = max(meanUG, meanVG) / (min(meanUG, meanVG) + 1e-8)
-            meanUB = valuesUB.mean()
-            meanVB = valuesVB.mean()
-            meanRatioB[i] = max(meanUB, meanVB) / (min(meanUB, meanVB) + 1e-8)
-            
+            for ch in range(channels):
+                meanU = valuesU[:,ch].mean()
+                meanV = valuesV[:,ch].mean()
+                meanRatios[i, ch] = max(meanU, meanV) / (min(meanU, meanV) + 1e-8)
+                    
+                
         if (medianRatio == True):
-            medianUR = np.median(valuesUR)
-            medianVR = np.median(valuesVR)
-            medianRatioR[i] = max(medianUR, medianVR) / (min(medianUR, medianVR) + 1e-8)
-            medianUG = np.median(valuesUG)
-            medianVG = np.median(valuesVG)
-            medianRatioG[i] = max(medianUG, medianVG) / (min(medianUG, medianVG) + 1e-8)
-            medianUB = np.median(valuesUB)
-            medianVB = np.median(valuesVB)
-            medianRatioB[i] = max(medianUB, medianVB) / (min(medianUB, medianVB) + 1e-8)
-            
-    varianceR /= varianceR.max()
-    varianceG /= varianceG.max()
-    varianceB /= varianceB.max()
+            for ch in range(channels):
+                medianU = np.median(valuesU[:,ch])
+                medianV = np.median(valuesV[:,ch])
+                medianRatios[i, ch] = max(medianU, medianV) / (min(medianU, medianV) + 1e-8)
+
+
+    for ch in range(channels):
+        if (variance == True):
+            variances[:,ch] /= variances[:,ch].max()
+        if (meanRatio == True):
+            meanRatios[:,ch] /= meanRatios[:,ch].max()
+        if (medianRatio == True):
+            medianRatios[:,ch] /= medianRatios[:,ch].max()
+       
     
-    meanRatioR /= meanRatioR.max()
-    meanRatioG /= meanRatioG.max()
-    meanRatioB /= meanRatioB.max()
-    
-    medianRatioR /= medianRatioR.max()
-    medianRatioG /= medianRatioG.max()
-    medianRatioB /= medianRatioB.max()
-    
-    edgeWeightsFromNodesAround = np.concatenate((varianceR, varianceG, varianceB, 
-                                                 meanRatioR, meanRatioG, meanRatioB,
-                                                 medianRatioR, medianRatioG, medianRatioB), axis=1)
+    edgeWeightsFromNodesAround = np.concatenate((variances, meanRatios, medianRatios), axis=1)
     
     return edgeWeightsFromNodesAround
 
-            
+
+def getEdgeWeightsFromNodesAround2(rag, img, numNodesAroundEdge, variance=False, meanRatio=False, medianRatio=False):
+
+    if (len(img.shape)==3):
+        channels = img.shape[2]
+    else:
+        channels = 1
+
+    if (variance == True):
+        variances = np.zeros((rag.edgeNum, channels))
+    
+    if (meanRatio == True):
+        meanRatios = np.zeros((rag.edgeNum, channels))        
+        
+    if (medianRatio == True):
+        medianRatios = np.zeros((rag.edgeNum, channels))
+        
+    
+    for i, e in enumerate(rag.edgeIter()):
+        nodeCoords = getNodeCoordsAroundEdge(rag, e, numNodesAroundEdge)
+        nNodesU = len(nodeCoords[0])
+        nNodesV = len(nodeCoords[1])
+        
+
+        valuesU = np.array(np.concatenate([img[ n[0], n[1], :].reshape((channels, 1)) for n in nodeCoords[0]], axis=1)).transpose()
+        valuesV = np.array(np.concatenate([img[ n[0], n[1], :].reshape((channels, 1)) for n in nodeCoords[1]], axis=1)).transpose()
+    
+        
+        if (variance == True):
+            variances[i, :] = [ch.var() for ch in np.concatenate((valuesU, valuesV), axis=0).transpose()]
+           
+                
+        if (meanRatio == True):
+            for ch in range(channels):
+                meanU = valuesU[:,ch].mean()
+                meanV = valuesV[:,ch].mean()
+                meanRatios[i, ch] = max(meanU, meanV) / (min(meanU, meanV) + 1e-8)
+                    
+                
+        if (medianRatio == True):
+            for ch in range(channels):
+                medianU = np.median(valuesU[:,ch])
+                medianV = np.median(valuesV[:,ch])
+                medianRatios[i, ch] = max(medianU, medianV) / (min(medianU, medianV) + 1e-8)
+
+
+    for ch in range(channels):
+        if (variance == True):
+            variances[:,ch] /= variances[:,ch].max()
+        if (meanRatio == True):
+            meanRatios[:,ch] /= meanRatios[:,ch].max()
+        if (medianRatio == True):
+            medianRatios[:,ch] /= medianRatios[:,ch].max()
+       
+    
+    edgeWeightsFromNodesAround = np.concatenate((variances, meanRatios, medianRatios), axis=1)
+    
+    return edgeWeightsFromNodesAround
+
+def getEdgeWeightsFromNodesAround3(rag, img, numNodesAroundEdge, variance=False, mean=False, meanRatio=False, 
+                                                                 medianRatio=False, skewness=False, kurtosis=False):
+
+    if (len(img.shape)==3):
+        channels = img.shape[2]
+    else:
+        channels = 1
+
+    tempFeatureList = []
+
+    if (variance == True):
+        variances = np.zeros((rag.edgeNum, channels))
+        tempFeatureList.append(variances)
+
+    if (mean == True):
+        means = np.zeros((rag.edgeNum, channels))
+        tempFeatureList.append(means)
+    
+    if (meanRatio == True):
+        meanRatios = np.zeros((rag.edgeNum, channels))        
+        tempFeatureList.append(meanRatios)
+
+    if (medianRatio == True):
+        medianRatios = np.zeros((rag.edgeNum, channels))
+        tempFeatureList.append(medianRatios)
+
+    if (skewness == True):
+        skewnessFeature = np.zeros((rag.edgeNum, channels))
+        tempFeatureList.append(skewnessFeature)
+
+    if (kurtosis == True):
+        kurtosisFeature = np.zeros((rag.edgeNum, channels))
+        tempFeatureList.append(kurtosisFeature)
+        
+    
+    for i, e in enumerate(rag.edgeIter()):
+        nodeCoords = getNodeCoordsAroundEdge(rag, e, numNodesAroundEdge)
+        nNodesU = len(nodeCoords[0])
+        nNodesV = len(nodeCoords[1])
+        
+
+        valuesU = np.array(np.concatenate([img[ n[0], n[1], :].reshape((channels, 1)) for n in nodeCoords[0]], axis=1)).transpose()
+        valuesV = np.array(np.concatenate([img[ n[0], n[1], :].reshape((channels, 1)) for n in nodeCoords[1]], axis=1)).transpose()
+    
+        
+        if (variance == True):
+            variances[i, :] = [ch.var() for ch in np.concatenate((valuesU, valuesV), axis=0).transpose()]
+
+        if (mean == True):
+            means[i, :] = [ch.mean() for ch in np.concatenate((valuesU, valuesV), axis=0).transpose()]
+                
+        if (meanRatio == True):
+            for ch in range(channels):
+                meanU = valuesU[:,ch].mean()
+                meanV = valuesV[:,ch].mean()
+                meanRatios[i, ch] = max(meanU, meanV) / (min(meanU, meanV) + 1e-8)
+                    
+                
+        if (medianRatio == True):
+            for ch in range(channels):
+                medianU = np.median(valuesU[:,ch])
+                medianV = np.median(valuesV[:,ch])
+                medianRatios[i, ch] = max(medianU, medianV) / (min(medianU, medianV) + 1e-8)
+
+        if (skewness == True):
+            skewnessFeature[i, :] = [stats.skew(ch) for ch in np.concatenate((valuesU, valuesV), axis=0).transpose()]
+
+        if (kurtosis == True):
+            kurtosisFeature[i, :] = [stats.kurtosis(ch) for ch in np.concatenate((valuesU, valuesV), axis=0).transpose()]
+
+    # normalize to [0, 1]
+    for ch in range(channels):
+        if (variance == True):
+            variances[:,ch] /= variances[:,ch].max()
+        if (mean == True):
+            means[:,ch] /= means[:,ch].max()
+        if (meanRatio == True):
+            meanRatios[:,ch] /= meanRatios[:,ch].max()
+        if (medianRatio == True):
+            medianRatios[:,ch] /= medianRatios[:,ch].max()
+        if (skewness == True):
+            skewnessFeature[:,ch] /= skewnessFeature[:,ch].max()
+        if (kurtosis == True):
+            kurtosisFeature[:,ch] /= kurtosisFeature[:,ch].max()
+       
+    
+    edgeWeightsFromNodesAround = np.concatenate(tempFeatureList, axis=1)
+    
+    return edgeWeightsFromNodesAround
 
 
 def getFeatures(rag, img, imgId):
@@ -258,13 +387,12 @@ def getFeatures(rag, img, imgId):
     
     ### Hessian of Gaussian ###
     sigmahoG     = 2.0
-    hoG = vigra.filters.hessianOfGaussian2D(rgb2gray(imgLab), sigmahoG)   # hoG[i]:0 vertical part, 1 diagonal, 2 horizontal
+    hoG = vigra.filters.hessianOfGaussianEigenvalues(rgb2gray(imgLab), sigmahoG)  
     filters.append(hoG[:,:,0])
-    featureNames.append('HessGaussY')
+    featureNames.append('HessGauss1')
     filters.append(hoG[:,:,1])
-    featureNames.append('HessGaussXY')
-    filters.append(hoG[:,:,2])
-    featureNames.append('HessGaussX')
+    featureNames.append('HessGauss2')
+
     
     ### Laplacian of Gaussian ###
     loG = vigra.filters.laplacianOfGaussian(imgLab)
@@ -282,17 +410,20 @@ def getFeatures(rag, img, imgId):
     filters.append(canny)
     featureNames.append('Canny')
 
-
-    
+    ### Structure Tensor ###
     strucTens = vigra.filters.structureTensorEigenvalues(imgLab, 0.7, 0.7)
     filters.append(strucTens[:,:,0])
     featureNames.append('StrucTensor1')
     filters.append(strucTens[:,:,1])
     featureNames.append('StrucTensor2')
     
-    filters.append(vigra.impex.readImage('images/edgeDetectors/n4/' + imgId + '.png'))
+
+    n4 = vigra.impex.readImage('images/edgeDetectors/n4/' + imgId + '.png')
+    filters.append(n4)
     featureNames.append('N4')
-    filters.append(vigra.impex.readImage('images/edgeDetectors/dollar/' + imgId + '.png'))
+
+    dollar = vigra.impex.readImage('images/edgeDetectors/dollar/' + imgId + '.png')
+    filters.append(dollar)
     featureNames.append('Dollar')
         
         
@@ -317,31 +448,61 @@ def getFeatures(rag, img, imgId):
     edgeWeights = edgeWeights.reshape(edgeWeights.shape[0], 1)    
     featureSpace = np.concatenate((featureSpace, edgeWeights), axis=1)
     featureNames.append('N4_EdgeLengthWeighted')
-    
+                
     pos = np.where(np.array(featureNames)=='Dollar')[0][0]
     edgeWeights = featureSpace[:,pos] * rag.edgeLengths()
     edgeWeights /= edgeWeights.max()
     edgeWeights = edgeWeights.reshape(edgeWeights.shape[0], 1)    
     featureSpace = np.concatenate((featureSpace, edgeWeights), axis=1)
     featureNames.append('Dollar_EdgeLengthWeighted')
+
+
+
+    rgbDummy = np.array(n4)
+    rgbDummy = rgbDummy.reshape(rgbDummy.shape[0], rgbDummy.shape[1], 1)
+    edgeWeights = getEdgeWeightsFromNodesAround3(rag, rgbDummy, 1, variance=True, mean=True, meanRatio=True, medianRatio=True, skewness=True, kurtosis=True)
+    featureSpace = np.concatenate((featureSpace, edgeWeights), axis=1)
+    featureNames.extend(('N4_Variance_1', 'N4_Mean_1', 'N4_MeanRatio_1', 'N4_MedianRatio_1', 'N4_Skewness_1', 'N4_Kurtosis_1'))
+    
+    edgeWeights = getEdgeWeightsFromNodesAround3(rag, rgbDummy, 3, variance=True, mean=True, meanRatio=True, medianRatio=True, skewness=True, kurtosis=True)
+    featureSpace = np.concatenate((featureSpace, edgeWeights), axis=1)
+    featureNames.extend(('N4_Variance_3', 'N4_Mean_3', 'N4_MeanRatio_3', 'N4_MedianRatio_3', 'N4_Skewness_3', 'N4_Kurtosis_3'))
+
+
+    rgbDummy = np.array(dollar)
+    rgbDummy = rgbDummy.reshape(rgbDummy.shape[0], rgbDummy.shape[1], 1)
+    edgeWeights = getEdgeWeightsFromNodesAround3(rag, rgbDummy, 1, variance=True, mean=True, meanRatio=True, medianRatio=True, skewness=True, kurtosis=True)
+    featureSpace = np.concatenate((featureSpace, edgeWeights), axis=1)
+    featureNames.extend(('Dollar_Variance_1', 'Dollar_Mean_1', 'Dollar_MeanRatio_1', 'Dollar_MedianRatio_1', 'Dollar_Skewness_1', 'Dollar_Kurtosis_1'))
+    
+    edgeWeights = getEdgeWeightsFromNodesAround3(rag, rgbDummy, 3, variance=True, mean=True, meanRatio=True, medianRatio=True, skewness=True, kurtosis=True)
+    featureSpace = np.concatenate((featureSpace, edgeWeights), axis=1)
+    featureNames.extend(('Dollar_Variance_3', 'Dollar_Mean_3', 'Dollar_MeanRatio_3', 'Dollar_MedianRatio_3', 'Dollar_Skewness_3', 'Dollar_Kurtosis_3'))
+
+
             
-            
-    edgeWeights = getEdgeWeightsFromNodesAround2(rag, imgLab, 1, variance=True, meanRatio=True, medianRatio=True)
+    edgeWeights = getEdgeWeightsFromNodesAround3(rag, imgLab, 1, variance=True, mean=True, meanRatio=True, medianRatio=True, skewness=True, kurtosis=True)
     featureSpace = np.concatenate((featureSpace, edgeWeights), axis=1)
     featureNames.extend(('Variance_1_R', 'Variance_1_G', 'Variance_1_B',
+                         'Mean_1_R', 'Mean_1_G', 'Mean_1_B', 
                          'MeanRatio_1_R', 'MeanRatio_1_G', 'MeanRatio_1_B',
-                         'MedianRatio_1_R', 'MedianRatio_1_G', 'MedianRatio_1_B'))
-    edgeWeights = getEdgeWeightsFromNodesAround2(rag, imgLab, 3, variance=True, meanRatio=True, medianRatio=True)
+                         'MedianRatio_1_R', 'MedianRatio_1_G', 'MedianRatio_1_B',
+                         'Skewness_1_R', 'Skewness_1_G', 'Skewness_1_B', 
+                         'Kurtosis_1_R', 'Kurtosis_1_G', 'Kurtosis_1_B'))
+    edgeWeights = getEdgeWeightsFromNodesAround3(rag, imgLab, 3, variance=True, mean=True, meanRatio=True, medianRatio=True, skewness=True, kurtosis=True)
     featureSpace = np.concatenate((featureSpace, edgeWeights), axis=1)
     featureNames.extend(('Variance_3_R', 'Variance_3_G', 'Variance_3_B',
+                         'Mean_3_R', 'Mean_3_G', 'Mean_3_B', 
                          'MeanRatio_3_R', 'MeanRatio_3_G', 'MeanRatio_3_B',
-                         'MedianRatio_3_R', 'MedianRatio_3_G', 'MedianRatio_3_B'))
+                         'MedianRatio_3_R', 'MedianRatio_3_G', 'MedianRatio_3_B',
+                         'Skewness_3_R', 'Skewness_3_G', 'Skewness_3_B', 
+                         'Kurtosis_3_R', 'Kurtosis_3_G', 'Kurtosis_3_B'))
     
     featureSpace = featureSpace.astype(np.float64)
     
     return featureSpace, featureNames
 
-def buildRandomForest(edgeFeatures, gtSols, filename='RF.hdf5'):
+def buildRandomForest(edgeFeatures, gtSols, filename=None):
     
     RF = vigra.learning.RandomForest()
 
@@ -385,7 +546,8 @@ def getProbsFromRF(features, RF=None, filename=None):
         print "No Random Forest source given!"
         return -1
 
-def performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, gtLabels, loss, LearnerParameter=None):
+def performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, gtLabels, loss, 
+    regularizerStr=1., learnerParameter=None, start=None):
 
     validLosses = ['partitionHamming', 'variationOfInformation']
     if (loss not in validLosses):
@@ -403,10 +565,15 @@ def performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, gtLabels
     
     elif (loss == 'variationOfInformation'):
         lossFctVec = ParaMcModel.lossFunctionVector2('variationOfInformation2',nTrainSamples)
-    gtVec = ParaMcModel.groundTruthVector(nTrainSamples)e nur von platinblonden Rave-Kids getragen, nun ero
+    gtVec = ParaMcModel.groundTruthVector(nTrainSamples)
 
-    weightVector = inferno.learning.WeightVector(nFeatures, 0.0)
+    if (start == None):
+        weightVector = inferno.learning.WeightVector(nFeatures, 0.0)
+    else:
+        weightVector = start
+
     weightConstraints = inferno.learning.WeightConstraints(nFeatures)
+    #weightConstraints.addBound(0, 0.99, 1.01)
 
 
     for n in range(nTrainSamples):
@@ -429,15 +596,19 @@ def performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, gtLabels
         gtView = gt.view()
         gtView[:] = gtLabels[n][1:]
 
+    regType = inferno.learning.RegularizerType.L2
+    regularizer = inferno.learning.Regularizer(regularizerType=regType, c=regularizerStr)
 
-    dataSet = inferno.learning.dataset.defaultDataset(modelVec, lossFctVec, gtVec, weightConstraints)
+    dataSet = inferno.learning.dataset.defaultDataset(modelVec, lossFctVec, gtVec, weightConstraints, regularizer=regularizer)
 
     mcFac = inferno.inference.multicutFactory(ParaMcModel)
     lossAugMcFac = inferno.inference.multicutFactory(ParaMcModel.lossAugmentedModelClass2('partitionHamming'))
 
+
     if (loss == 'partitionHamming'):
-        paramSubGrad = dict(maxIterations=70)
-        learnerSubGrad = inferno.learning.learners.subGradient(dataSet, **paramSubGrad)
+        if (learnerParameter == None):
+            learnerParameter = dict(maxIterations=70)
+        learnerSubGrad = inferno.learning.learners.subGradient(dataSet, **learnerParameter)
         t1 = time.time()
         print "Begin weight learning..."
         sys.stdout.flush()
@@ -445,8 +616,9 @@ def performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, gtLabels
         t2 = time.time()
     
     elif (loss == 'variationOfInformation'):
-        paramStochGrad = dict(maxIterations=30, nPertubations=7, sigma=1.5)
-        learnerStochGrad = inferno.learning.learners.stochasticGradient(dataSet, **paramStochGrad)
+        if (learnerParameter == None):
+            learnerParameter = dict(maxIterations=30, nPertubations=7, sigma=1.5)
+        learnerStochGrad = inferno.learning.learners.stochasticGradient(dataSet, **learnerParameter)
         t1 = time.time()
         print "Begin weight learning..."
         sys.stdout.flush()
@@ -456,4 +628,46 @@ def performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, gtLabels
     print "Learning Duration: ", t2-t1, "sec"
     
     return weightVector
+
+
+def performTesting(testImgs, testRags, testEdges, testFeatureSpaces, testIds, weightVector, resultsPath):
+
+    ParaMcModel = inferno.models.ParametrizedMulticutModel
+
+    nTestSamples = len(testImgs)
+
+    modelVec = ParaMcModel.modelVector(nTestSamples)
+
+    for n in range(nTestSamples):
+        nVar = testRags[n].nodeNum
+        modelVec[n]._assign(nVar, testEdges[n]-1, testFeatureSpaces[n], weightVector)
+
+
+
+    for i in range(nTestSamples):
+
+        solver = inferno.inference.multicut(modelVec[i])
+
+        visitor = inferno.inference.verboseVisitor(modelVec[i])
+        solver.infer(visitor.visitor())
+
+        conf = solver.conf()
+
+        arg = conf.view().astype('uint32')
+        arg = np.array([0] + list(arg), dtype=np.uint32) + 1
+
+        fig = pylab.figure(frameon=False)
+        
+        # make figure without frame
+        ax = pylab.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+        
+        testRags[i].show(testImgs[i], labels=arg, edgeColor=(1,0,0), alpha=0.)
+
+        
+        fig.savefig(resultsPath + str(testIds[i]) + '.tif')
+        
+        del fig, ax
+
 
