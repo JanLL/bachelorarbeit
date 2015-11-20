@@ -317,6 +317,8 @@ namespace learners{
 
         LossType bestLoss_;
         
+
+        
     };
 
 } // end namespace inferno::learning::learners
