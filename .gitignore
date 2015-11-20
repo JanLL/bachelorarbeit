@@ -6,7 +6,8 @@ __pycache__/
 *.so
 
 
-# Folders
+# eigenes zeug
+# ordner
 FeatureSpaces/
 fewImages/
 images/
@@ -17,7 +18,8 @@ testSet/
 trainingSet/
 alte_versionen/
 
-
+# dateien
+updateSG.sh
 
 
 
