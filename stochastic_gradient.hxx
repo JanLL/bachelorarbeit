@@ -70,8 +70,8 @@ namespace learners{
 
             try{
 
-                double TOL = 0.01;
-                int numNoImprovements = 0;
+                double TOL = 1e-8;
+                int lastImprove = 0;
 
                 // get dataset
                 auto & dset = dataset();
@@ -79,7 +79,7 @@ namespace learners{
                 WeightVector prevStep(weightVector.size(),0);
                 
                 bestLoss_  = dataset_.averageLoss(inferenceFactory);
-                std::cout << "bestLoss: " << bestLoss_ << std::endl;
+                std::cout << "initial Loss: " << bestLoss_ << std::endl;
                 WeightVector bestWeight = weightVector;
 
                 // multiple weight-vectors stacked as matrix
@@ -101,10 +101,8 @@ namespace learners{
                 const auto & weightConstraints =  dset.weightConstraints();
 
                 for(size_t i=0; i<options_.maxIterations_; ++i){
-                    
-                    std::cout << "Iteration " << i << std::endl;
+                   
 
-                    bool improvement = false;
 
                     indices.randomShuffle();
                     // FIXME indices.randomShuffle(rng);
@@ -121,8 +119,7 @@ namespace learners{
                         const auto  lossFunction = dset.lossFunction(trainingInstanceIndex);
 
                         // pertubate (and remember noise matrix)
-
-                        weightMatrix.pertubate(weightVector,noiseMatrix,weightConstraints, normalDist);
+                        weightMatrix.pertubate(weightVector,noiseMatrix,weightConstraints, normalDist); // hier wird weightMatrix nicht geändert...
 
                         // to remember arg mins
                         //std::cout<<"conf assign \n";
@@ -132,8 +129,12 @@ namespace learners{
                         }
 
                         // argmin for perturbed model
+                        WeightVector gradient(weightVector.size(),0);
+                        bool directImprove = false;
                         auto cc=0;
                         for(const auto & perturbedWeightVector : weightMatrix){
+                            
+
                             // set perturbed weights
                             model.updateWeights(perturbedWeightVector);
 
@@ -147,23 +148,33 @@ namespace learners{
                             const auto l = lossFunction->eval(model, gt, confMapVector[cc]);
                             losses[cc] = l;
                             ++cc;
+
+                            if (l < bestLoss_) {
+                                for (size_t k=0; k<weightVector.size(); ++k) {
+                                    gradient[k] = weightVector[k] - perturbedWeightVector[k];
+                                }
+                                directImprove = true;
+                                std::cout << "Direct Improve happened!!!\n";
+                                break;
+                            }
+
+
                         }
 
-                        WeightVector gradient(weightVector.size(),0);
-                        noiseMatrix.weightedSum(losses, gradient);
-                        gradient *= dset.regularizer().c()/double(options_.nPertubations_);
+                        if (directImprove == false) {
 
-        
-                        //for(size_t gg=0; gg<10; ++gg){
-                        //    std::cout<<gradient[gg]<<"   ";
-                        //}
-                        //std::cout<<"\n";
+                            noiseMatrix.weightedSum(losses, gradient);
+                            gradient *= dset.regularizer().c()/double(options_.nPertubations_);
+
+                        }
+
+
                         // reset the weights to the current weights
                         model.updateWeights(weightVector);
 
 
-                        improvement = takeGradientStep(inferenceFactory, weightVector, gradient, prevStep, 
-                                                       bestWeight, i-numNoImprovements);
+                        takeGradientStep(inferenceFactory, weightVector, gradient, prevStep, 
+                                                       bestWeight, i);
 
 
                         dset.updateWeights(weightVector);
@@ -176,17 +187,6 @@ namespace learners{
                     if (bestLoss_ < TOL) {    // Konvergenzkriterium
                         std::cout << "bestLoss smaller than tolerance!\n";
                         break;
-                    }
-
-                    if (improvement) {
-                        numNoImprovements = 0;
-                    }
-                    else {
-                       numNoImprovements += 1;
-                    }
-
-                    if (numNoImprovements % 5 == 0) {
-                        weightVector = bestWeight;
                     }
 
 
@@ -296,7 +296,7 @@ namespace learners{
                     improvment = true;
                     bestVal = ll;
                     bestIndex = i;
-                    return true;
+                    return true;        // wahrscheinlich auch subotimal ohne die anderen zu probieren.. vllt wirds noch besser...
                 }
                 if(ll<bestVal){
                     bestVal = ll;
@@ -315,10 +315,7 @@ namespace learners{
         Dataset & dataset_;
         Options options_;
 
-        LossType bestLoss_;
-        
-
-        
+        LossType bestLoss_;  
     };
 
 } // end namespace inferno::learning::learners
