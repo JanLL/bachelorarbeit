@@ -13,6 +13,8 @@
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
 
+#include <fstream>
+
 namespace inferno{
 namespace learning{
 namespace learners{
@@ -73,12 +75,17 @@ namespace learners{
                 double TOL = 1e-8;
                 int lastImprove = 0;
 
+                std::ofstream output("/home/argo/HCI/bachelorarbeit/output.txt");
+
+    
+
                 // get dataset
                 auto & dset = dataset();
                 //auto & weights = weightVector;
                 WeightVector prevStep(weightVector.size(),0);
                 
                 bestLoss_  = dataset_.averageLoss(inferenceFactory);
+                currentLoss_ = bestLoss_;
                 std::cout << "initial Loss: " << bestLoss_ << std::endl;
                 WeightVector bestWeight = weightVector;
 
@@ -86,6 +93,9 @@ namespace learners{
                 WeightMatrix            noiseMatrix(weightVector,options_.nPertubations_);
                 WeightMatrix            weightMatrix(weightVector,options_.nPertubations_);   
                 std::vector<LossType>   losses(options_.nPertubations_);
+
+                std::vector<LossType>   relLosses(options_.nPertubations_);
+
 
                 // random gen
                 boost::mt19937 rng(options_.seed_); // I don't seed it on purpouse (it's not relevant)
@@ -119,7 +129,7 @@ namespace learners{
                         const auto  lossFunction = dset.lossFunction(trainingInstanceIndex);
 
                         // pertubate (and remember noise matrix)
-                        weightMatrix.pertubate(weightVector,noiseMatrix,weightConstraints, normalDist); // hier wird weightMatrix nicht geändert...
+                        weightMatrix.pertubate(weightVector,noiseMatrix,weightConstraints, normalDist); 
 
                         // to remember arg mins
                         //std::cout<<"conf assign \n";
@@ -127,6 +137,17 @@ namespace learners{
                         for(auto & cmap : confMapVector){
                             cmap.assign(model);
                         }
+
+                        // get loss unperturbed weights
+                        model.updateWeights(weightVector);
+
+                        // get argmin 
+                        auto inference = inferenceFactory->create(model);
+                        inference->infer();
+                        inference->conf(confMapVector[0]); 
+
+                        const auto loss_unperturbed = lossFunction->eval(model, gt, confMapVector[0]);
+
 
                         // argmin for perturbed model
                         WeightVector gradient(weightVector.size(),0);
@@ -143,30 +164,25 @@ namespace learners{
                             inference->infer();
                             inference->conf(confMapVector[cc]); 
 
-
-                    
                             const auto l = lossFunction->eval(model, gt, confMapVector[cc]);
+                            auto relLoss = (l - loss_unperturbed) * loss_unperturbed;
+                            relLosses[cc] = relLoss;
+                            //std::cout << "relLoss: " << relLoss << "\n";
+
+
                             losses[cc] = l;
                             ++cc;
 
                             if (l < bestLoss_) {
-                                for (size_t k=0; k<weightVector.size(); ++k) {
-                                    gradient[k] = weightVector[k] - perturbedWeightVector[k];
-                                }
-                                directImprove = true;
-                                std::cout << "Direct Improve happened!!!\n";
-                                break;
+                                std::cout << "Direct Improve found at Iteration " << i << " with relLoss " << relLoss << "\n";
                             }
-
-
                         }
 
-                        if (directImprove == false) {
 
-                            noiseMatrix.weightedSum(losses, gradient);
-                            gradient *= dset.regularizer().c()/double(options_.nPertubations_);
+                        //noiseMatrix.weightedSum(losses, gradient); // original absolute-weighted method
+                        noiseMatrix.weightedSum(relLosses, gradient);
 
-                        }
+                        gradient *= dset.regularizer().c()/double(options_.nPertubations_);
 
 
                         // reset the weights to the current weights
@@ -174,7 +190,14 @@ namespace learners{
 
 
                         takeGradientStep(inferenceFactory, weightVector, gradient, prevStep, 
-                                                       bestWeight, i);
+                                         bestWeight, i);
+
+
+                        // Save current weights in external file
+                        /*for (const auto& w : weightVector) {
+                            output << std::fixed << std::setw(5) << w << "\t";
+                        }
+                        output << "\n";*/
 
 
                         dset.updateWeights(weightVector);
@@ -194,10 +217,8 @@ namespace learners{
                 weightVector = bestWeight;
                 dset.updateWeights(weightVector);
 
-                for(const auto& w : weightVector) {
-                    std::cout << w << "\t";
-                }
-                std::cout << "\n";
+
+                output.close();
 
             }
             catch( const std::exception &e) { 
@@ -263,6 +284,16 @@ namespace learners{
                 LossType loss = 0;
                 if(eval)
                     loss = dataset_.averageLoss(inferenceFactory);
+
+
+                    //std::cout << "Current Weights:  ";
+                    /*for (const auto& cw : currentWeights) {
+                        std::cout << cw << "   ";
+                    }*/
+                    //std::cout << currentWeights[0] << "   " << currentWeights[0] << "...\n";
+                    //std::cout << "\nAverageLoss:\t" << loss << "\n";
+
+
                 if(undo)
                     currentWeights = buffer;
                 return loss;
@@ -280,7 +311,7 @@ namespace learners{
             int bestIndex = 0;
             double bestVal = infVal();
 
-            double currentLoss;
+            
 
             for(size_t i=0; i<fracs.size(); ++i){
                 const double ss = effectiveStepSize*fracs[i];
@@ -288,15 +319,15 @@ namespace learners{
                 lossVal[i] = ll;
 
                 if(ll<bestLoss_){
-                    std::cout<<"improved via frac  "<<fracs[i]<<"     loss "<<ll<<"\n";
+                    std::cout << "improved via frac  " << fracs[i] << "     loss " << ll << "  at Iteration: " << iteration << "\n";
                     bestLoss_ = ll;
-                    currentLoss = bestLoss_;
+                    currentLoss_ = bestLoss_;
                     takeStep(ss, false, false);
                     bestWeight = currentWeights;
                     improvment = true;
                     bestVal = ll;
                     bestIndex = i;
-                    return true;        // wahrscheinlich auch subotimal ohne die anderen zu probieren.. vllt wirds noch besser...
+                    return true;        // wahrscheinlich auch suboptimal ohne die anderen zu probieren.. 
                 }
                 if(ll<bestVal){
                     bestVal = ll;
@@ -304,8 +335,17 @@ namespace learners{
                 }
             }
             if(!improvment){
-                currentLoss  = lossVal[bestIndex];
+                currentLoss_  = lossVal[bestIndex];
                 //std::cout<<"best via frac  "<<fracs[bestIndex]<<" loss "<<lossVal[bestIndex]<<"\n";
+                
+             
+
+                /*for (const auto& lv : lossVal) {
+                    std::cout << lv << "   ";
+                }
+                std::cout << "\n";*/
+
+
                 const double ss = effectiveStepSize*fracs[bestIndex];
                 takeStep(ss, false, false);
             }
@@ -315,6 +355,7 @@ namespace learners{
         Dataset & dataset_;
         Options options_;
 
+        LossType currentLoss_;
         LossType bestLoss_;  
     };
 

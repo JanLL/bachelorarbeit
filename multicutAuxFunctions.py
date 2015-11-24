@@ -405,7 +405,7 @@ def getProbsFromRF(features, RF=None, filename=None):
         return -1
 
 def performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, gtLabels, loss, 
-    regularizerStr=1., learnerParameter=None, start=None):
+    regularizerStr=1., learnerParameter=None, start=None, weightConstraints=None):
 
     validLosses = ['partitionHamming', 'variationOfInformation']
     if (loss not in validLosses):
@@ -430,8 +430,9 @@ def performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, gtLabels
     else:
         weightVector = start
 
-    weightConstraints = inferno.learning.WeightConstraints(nFeatures)
-    #weightConstraints.addBound(0, 0.99, 1.01)
+    if (weightConstraints == None):
+        weightConstraints = inferno.learning.WeightConstraints(nFeatures)
+    
 
 
     for n in range(nTrainSamples):
