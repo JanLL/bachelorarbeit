@@ -547,8 +547,8 @@ def performTesting(testImgs, testRags, testEdges, testFeatureSpaces, testIds, we
         del fig, ax
 
 
-def performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, weightVector, resultsPath):
-    
+def performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, testGtLabels, featureNames, weightVector, resultsPath):
+
     ParaMcModel = inferno.models.ParametrizedMulticutModel
 
     nTestSamples = len(testImgs)
@@ -560,7 +560,8 @@ def performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, w
         modelVec[n]._assign(nVar, testEdges[n]-1, testFeatureSpaces[n], weightVector)
 
 
-
+    lossOutputFile = open(resultsPath + 'losses.txt', 'w')
+    lossOutputFile.write('imgId\tpartitionHamming\tvariationOfInformation\n')
     for i in range(nTestSamples):
 
         solver = inferno.inference.multicut(modelVec[i])
@@ -573,17 +574,56 @@ def performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, w
         arg = conf.view().astype('uint32')
         arg = np.array([0] + list(arg), dtype=np.uint32) + 1
 
+        ### Save segmented image
         fig = pylab.figure(frameon=False)
         
-        # make figure without frame
         ax = pylab.Axes(fig, [0., 0., 1., 1.])
         ax.set_axis_off()
         fig.add_axes(ax)
         
         testRags[i].show(testImgs[i], labels=arg, edgeColor=(1,0,0), alpha=0.)
 
-        
-        fig.savefig(resultsPath + str(testIds[i]) + '.tif')
+        fig.savefig(resultsPath + 'segmentedImages/' + str(testIds[i]) + '.tif')
         
         del fig, ax
-    
+
+        ### Calculate Losses
+        confGt = modelVec[i].variableMap('int64', 1)
+        gtView = confGt.view()
+        gtView[:] = testGtLabels[i][1:]
+
+        conf1 = modelVec[i].variableMap('int64', 1)
+        confView = conf1.view()
+        confView[:] = conf
+
+        # partition Hamming
+        lf = inferno.learning.loss_functions.partitionHamming(modelVec[i], rescale=1.0, overseg=1.0, underseg=1.5)
+        lossPH = lf.eval(modelVec[i], confGt, conf1)
+
+        # Variation Of Information
+        sizeMap = modelVec[i].variableMap('float64', 1.0)
+        sizeMapView = sizeMap.view()
+        for l in range(1, testRags[i].maxNodeId+1):
+            sizeMapView[l-1] = np.count_nonzero(np.array(testRags[i].baseGraphLabels==l, dtype=np.int8))
+        lf = inferno.learning.loss_functions.variationOfInformation2(model=modelVec[i], variableSizeMap=sizeMap)
+        lossVOI = lf.eval(modelVec[i], confGt, conf1)
+
+        lossOutputFile.write(str(testIds[n]) + '\t' + str(lossPH) + '\t\t' + str(lossVOI) + '\n')
+
+
+    lossOutputFile.close()
+
+    ### Save weights showed in a bar-graph
+
+    auxWeightVec = np.zeros(len(weightVector))
+    for w in range(len(weightVector)):
+        auxWeightVec[w] = weightVector[w]
+
+    f = pylab.figure(figsize=(16,10))
+    ax = f.add_subplot(111)
+
+    ax.bar(range(auxWeightVec.shape[0]), auxWeightVec)
+    ax.set_xticks(np.linspace(0.5, len(featureNames)-0.5, len(featureNames)))
+    ax.set_xticklabels(featureNames, rotation=90, weight=550)
+    f.savefig(resultsPath + 'weights.png', dpi=150)
+
