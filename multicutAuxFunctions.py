@@ -243,7 +243,7 @@ def getFeatures(rag, img, imgId):
     featureNames.append('GradMag5')
 
     
-    ### Hessian of Gaussian ###
+    ### Hessian of Gaussian Eigenvalues ###
     sigmahoG     = 2.0
     hoG = vigra.filters.hessianOfGaussianEigenvalues(rgb2gray(imgLab), sigmahoG)  
     filters.append(hoG[:,:,0])
@@ -268,7 +268,8 @@ def getFeatures(rag, img, imgId):
     filters.append(canny)
     featureNames.append('Canny')
 
-    ### Structure Tensor ###
+    
+    ### Structure Tensor Eigenvalues ###
     strucTens = vigra.filters.structureTensorEigenvalues(imgLab, 0.7, 0.7)
     filters.append(strucTens[:,:,0])
     featureNames.append('StrucTensor1')
@@ -283,7 +284,7 @@ def getFeatures(rag, img, imgId):
     dollar = vigra.impex.readImage('images/edgeDetectors/dollar/' + imgId + '.png')
     filters.append(dollar)
     featureNames.append('Dollar')
-        
+    
         
         
     ##########################################################################################
@@ -295,11 +296,11 @@ def getFeatures(rag, img, imgId):
     for i in range(len(filters)):
         gridGraphEdgeIndicator = graphs.edgeFeaturesFromImage(rag.baseGraph, filters[i]) 
         edgeWeights = rag.accumulateEdgeFeatures(gridGraphEdgeIndicator)
-        edgeWeights /= edgeWeights.max()
+        #edgeWeights /= edgeWeights.max()
         edgeWeights = edgeWeights.reshape(edgeWeights.shape[0], 1)
         featureSpace = np.concatenate((featureSpace, edgeWeights), axis=1)
                 
-            
+          
     pos = np.where(np.array(featureNames)=='N4')[0][0]
     edgeWeights = featureSpace[:,pos] * rag.edgeLengths()
     edgeWeights /= edgeWeights.max()
@@ -357,6 +358,22 @@ def getFeatures(rag, img, imgId):
                          'Kurtosis_3_R', 'Kurtosis_3_G', 'Kurtosis_3_B'))
     
     featureSpace = featureSpace.astype(np.float64)
+
+    ### Normalize to [-1, 1]
+    '''for edgeWeights in featureSpace.transpose():
+        if (edgeWeights.min() < 0):
+            edgeWeights -= edgeWeights.min()
+        maximum = edgeWeights.max() 
+        edgeWeights *= 2
+        edgeWeights /= maximum
+        edgeWeights -= 1
+    '''
+
+    ### Normalize to [0, 1]
+    for edgeWeights in featureSpace.transpose():
+        if (edgeWeights.min() < 0):
+            edgeWeights -= edgeWeights.min()
+        edgeWeights /= edgeWeights.max()
     
     return featureSpace, featureNames
 

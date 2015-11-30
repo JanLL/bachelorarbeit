@@ -112,7 +112,7 @@ namespace learners{
 
                 for(size_t i=0; i<options_.maxIterations_; ++i){
                    
-
+                    std::cout << "Iteration " << i+1 << "\n";
 
                     indices.randomShuffle();
                     // FIXME indices.randomShuffle(rng);
@@ -152,6 +152,8 @@ namespace learners{
                         // argmin for perturbed model
                         WeightVector gradient(weightVector.size(),0);
                         bool directImprove = false;
+                        auto directImproveIndex = 0;
+                        LossType directImproveValue = infVal();
                         auto cc=0;
                         for(const auto & perturbedWeightVector : weightMatrix){
                             
@@ -165,19 +167,44 @@ namespace learners{
                             inference->conf(confMapVector[cc]); 
 
                             const auto l = lossFunction->eval(model, gt, confMapVector[cc]);
-                            auto relLoss = (l - loss_unperturbed) * loss_unperturbed;
-                            relLosses[cc] = relLoss;
+                            const auto relLoss = l - loss_unperturbed;
+                            relLosses[cc] = relLoss * loss_unperturbed;
                             //std::cout << "relLoss: " << relLoss << "\n";
 
+                            if (l < loss_unperturbed) {
+                                directImprove = true;
+                                
+
+                                if (l < directImproveValue) {
+                                    directImproveIndex = cc;
+                                    directImproveValue = l;
+                                }
+
+
+                                //std::cout << "Local direct Improve found at Iteration " << i << " with relLoss " << relLoss 
+                                //          << "  Potential: " << -relLoss / loss_unperturbed << "%\n";
+
+                            }
 
                             losses[cc] = l;
                             ++cc;
 
-                            if (l < bestLoss_) {
-                                std::cout << "Direct Improve found at Iteration " << i << " with relLoss " << relLoss << "\n";
-                            }
                         }
+                        
+                        // Just use the perturbed weightVector which yielded the biggest decrease in loss of current training sample
+                        /*if (directImprove) {
+                            for (size_t k=0; k<relLosses.size(); ++k) {
 
+                                if (k != directImproveIndex) {
+                                    relLosses[k] = 0;
+                                }
+                                else {
+                                    relLosses[k] *= options_.nPertubations_;
+                                }
+
+                            } 
+                        }*/
+                        
 
                         //noiseMatrix.weightedSum(losses, gradient); // original absolute-weighted method
                         noiseMatrix.weightedSum(relLosses, gradient);
@@ -194,10 +221,10 @@ namespace learners{
 
 
                         // Save current weights in external file
-                        /*for (const auto& w : weightVector) {
+                        for (const auto& w : weightVector) {
                             output << std::fixed << std::setw(5) << w << "\t";
                         }
-                        output << "\n";*/
+                        output << "\n";
 
 
                         dset.updateWeights(weightVector);
