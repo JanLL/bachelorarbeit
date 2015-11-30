@@ -547,3 +547,43 @@ def performTesting(testImgs, testRags, testEdges, testFeatureSpaces, testIds, we
         del fig, ax
 
 
+def performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, weightVector, resultsPath):
+    
+    ParaMcModel = inferno.models.ParametrizedMulticutModel
+
+    nTestSamples = len(testImgs)
+
+    modelVec = ParaMcModel.modelVector(nTestSamples)
+
+    for n in range(nTestSamples):
+        nVar = testRags[n].nodeNum
+        modelVec[n]._assign(nVar, testEdges[n]-1, testFeatureSpaces[n], weightVector)
+
+
+
+    for i in range(nTestSamples):
+
+        solver = inferno.inference.multicut(modelVec[i])
+
+        visitor = inferno.inference.verboseVisitor(modelVec[i])
+        solver.infer(visitor.visitor())
+
+        conf = solver.conf()
+
+        arg = conf.view().astype('uint32')
+        arg = np.array([0] + list(arg), dtype=np.uint32) + 1
+
+        fig = pylab.figure(frameon=False)
+        
+        # make figure without frame
+        ax = pylab.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+        
+        testRags[i].show(testImgs[i], labels=arg, edgeColor=(1,0,0), alpha=0.)
+
+        
+        fig.savefig(resultsPath + str(testIds[i]) + '.tif')
+        
+        del fig, ax
+    
