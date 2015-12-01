@@ -608,7 +608,7 @@ def performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, t
         lf = inferno.learning.loss_functions.variationOfInformation2(model=modelVec[i], variableSizeMap=sizeMap)
         lossVOI = lf.eval(modelVec[i], confGt, conf1)
 
-        lossOutputFile.write(str(testIds[n]) + '\t' + str(lossPH) + '\t\t' + str(lossVOI) + '\n')
+        lossOutputFile.write(str(testIds[i]) + '\t' + str(lossPH) + '\t\t' + str(lossVOI) + '\n')
 
 
     lossOutputFile.close()

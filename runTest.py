@@ -13,7 +13,7 @@ import inferno
 import multicutAuxFunctions as maf
 
 
-resultsPath = 'results/151130_runTest/'
+resultsPath = 'results/151201_buildingUpFullFeatureSpaces/'
 
 if not os.path.exists(resultsPath):
     os.makedirs(resultsPath)
@@ -186,23 +186,20 @@ for i, (rag, img, testId) in enumerate(zip(testRags, testImgs, testIds)):
     sys.stdout.flush()
 
     testFeatureSpaces.append(features)
+nFeatures = trainingFeatureSpaces[0].shape[1]
 t2 = time.time()
 
 print "\nTime to built up Testing Feature Space:", t2-t1, "sec"
 
 
 
-########################## PartitionHamming Learner ########################################
+########################## Subgradient Learner (partitionHamming) ########################################
 
-
-
-### PartitionHamming
-
-nFeatures = trainingFeatureSpaces[0].shape[1]
+'''
 weightConstraints = inferno.learning.WeightConstraints(nFeatures)
 weightConstraints.addBound(1, -1.01, -0.99)
 
-subGradParameter = dict(maxIterations=30, nThreads=4, n=0.1)
+subGradParameter = dict(maxIterations=200, nThreads=4, n=0.1)
 weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, trainingGtLabels,
                                    loss='partitionHamming', learnerParameter=subGradParameter, 
                                    weightConstraints=weightConstraints, regularizerStr=1.)
@@ -222,13 +219,42 @@ else:
     RF = maf.buildRandomForest(trainingFeatureSpaces, trainingGtSols, rfPath)
 
 trainingRfProbs = maf.getProbsFromRF(trainingFeatureSpaces, RF)
-
 trainingFeatureSpaces[:] = [np.concatenate((featureSpace, (prob[:,1]).reshape(prob.shape[0],1)), axis=1) for featureSpace, prob in zip(trainingFeatureSpaces, trainingRfProbs)]
+
+testingRfProbs = maf.getProbsFromRF(testFeatureSpaces, RF)
+testFeatureSpaces[:] = [np.concatenate((featureSpace, (prob[:,1]).reshape(prob.shape[0],1)), axis=1) for featureSpace, prob in zip(testFeatureSpaces, testingRfProbs)]
+
 featureNames.append('RF_Prob')
+nFeatures = trainingFeatureSpaces[0].shape[1]
+
+
+################## extend weight vector for random forest features ########################
+
+auxWeightVec = np.zeros(len(weightVector))
+for w in range(len(weightVector)):
+    auxWeightVec[w] = weightVector[w]
+    
+weightVector = inferno.learning.WeightVector(nFeatures, 0.0)
+for w in range(auxWeightVec.shape[0]):
+    weightVector[w] = auxWeightVec[w]
 
 
 
+############################ Stochastic Gradient Learner (Variation of Information) ##########################
 
+
+StochGradParameter = dict(maxIterations=10, nPertubations=3, sigma=1.7, n=1., seed=1) 
+weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, trainingGtLabels,
+                                   loss='variationOfInformation', learnerParameter=StochGradParameter, 
+                                   regularizerStr=1., weightConstraints=weightConstraints, start=weightVector)
+
+np.save(resultsPath + 'VOI/weights.npy', weightVector)
+
+maf.performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, testingGtLabels, 
+					featureNames, weightVector, resultsPath + 'VOI/')
+
+
+'''
 
 
 
