@@ -270,7 +270,7 @@ def getFeatures(rag, img, imgId):
 
     
     ### Structure Tensor Eigenvalues ###
-    strucTens = vigra.filters.structureTensorEigenvalues(imgLab, 0.7, 0.7)
+    strucTens = vigra.filters.structureTensorEigenvalues(imgLab, 1.5, 3.0)
     filters.append(strucTens[:,:,0])
     featureNames.append('StrucTensor1')
     filters.append(strucTens[:,:,1])
@@ -559,7 +559,7 @@ def performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, t
         nVar = testRags[n].nodeNum
         modelVec[n]._assign(nVar, testEdges[n]-1, testFeatureSpaces[n], weightVector)
 
-
+    losses = np.zeros((nTestSamples, 2))
     lossOutputFile = open(resultsPath + 'losses.txt', 'w')
     lossOutputFile.write('imgId\tpartitionHamming\tvariationOfInformation\n')
     for i in range(nTestSamples):
@@ -596,9 +596,11 @@ def performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, t
         confView = conf1.view()
         confView[:] = conf
 
+
         # partition Hamming
         lf = inferno.learning.loss_functions.partitionHamming(modelVec[i], rescale=1.0, overseg=1.0, underseg=1.5)
         lossPH = lf.eval(modelVec[i], confGt, conf1)
+        losses[i, 0] = lossPH
 
         # Variation Of Information
         sizeMap = modelVec[i].variableMap('float64', 1.0)
@@ -607,9 +609,12 @@ def performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, t
             sizeMapView[l-1] = np.count_nonzero(np.array(testRags[i].baseGraphLabels==l, dtype=np.int8))
         lf = inferno.learning.loss_functions.variationOfInformation2(model=modelVec[i], variableSizeMap=sizeMap)
         lossVOI = lf.eval(modelVec[i], confGt, conf1)
+        losses[i, 1] = lossVOI
 
         lossOutputFile.write(str(testIds[i]) + '\t' + str(lossPH) + '\t\t' + str(lossVOI) + '\n')
 
+
+    lossOutputFile.write('\n\t\t' + str(losses[:,0].mean()) + '\t\t' + str(losses[:,1].mean()))
 
     lossOutputFile.close()
 
@@ -626,4 +631,25 @@ def performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, t
     ax.set_xticks(np.linspace(0.5, len(featureNames)-0.5, len(featureNames)))
     ax.set_xticklabels(featureNames, rotation=90, weight=550)
     f.savefig(resultsPath + 'weights.png', dpi=150)
+
+
+
+
+def normWeights(weightVector):
+
+    auxWeightVec = np.zeros(len(weightVector))
+
+    for n in range(len(weightVector)):
+        auxWeightVec[n] = weightVector[n]
+        
+    if (auxWeightVec.max() > -auxWeightVec.min()):
+        auxWeightVec /= auxWeightVec.max()
+    else:
+        auxWeightVec /= -auxWeightVec.min()
+
+    for n in range(len(weightVector)):
+        weightVector[n] = auxWeightVec[n]
+
+    return weightVector
+
 

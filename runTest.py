@@ -13,7 +13,7 @@ import inferno
 import multicutAuxFunctions as maf
 
 
-resultsPath = 'results/151201_buildi/'
+resultsPath = 'results/151202_oldGoodResults/'
 
 if not os.path.exists(resultsPath):
     os.makedirs(resultsPath)
@@ -45,7 +45,7 @@ nodeNumStop        = 50      # desired num. nodes in result
 minSize            = 15
 
 print "Loading Training Data..."
-###################### load images, ground truths and create rags ###########################
+############# load images and convert to LAB #############
 for root, dirs, files in path:
     jpgFiles = [filename for filename in files if filename.endswith('.jpg')]
     T = len(jpgFiles)
@@ -73,11 +73,12 @@ for root, dirs, files in path:
         
         gtLabel = np.load('groundTruthLabels/' + fileId + '.npy')
 
+
         trainingGtLabels.append(gtLabel)
-        
         trainingGtSols.append(maf.getGroundTruthSol(rag, gtLabel))
 
 ### Feature Spaces
+# Training
 
 testingFeatureSpacesPath = resultsPath + 'featureSpaces/training/'
 
@@ -89,28 +90,25 @@ print "\nBuilding up Training Feature Space..."
 sys.stdout.flush()
 for i, (rag, img, trainId) in enumerate(zip(trainingRags, trainingImgs, trainingIds)):
     trainingEdges.append(rag.uvIds().astype('uint64'))
-    
-    if (os.path.isfile(testingFeatureSpacesPath + trainId + '.npy') == True):
-        features = np.load(testingFeatureSpacesPath + trainId + '.npy')
-        if (os.path.isfile(resultsPath + 'featureSpaces/featureNames.npy') == True):
-            featureNames = list(np.load(resultsPath + 'featureSpaces/featureNames.npy'))
+
+    #if (os.path.isfile(testingFeatureSpacesPath + trainId + '.npy') == True):
+    #    features = np.load(testingFeatureSpacesPath + trainId + '.npy')
+    #    if (os.path.isfile(resultsPath + 'featureSpaces/featureNames.npy') == True):
+    #        featureNames = list(np.load(resultsPath + 'featureSpaces/featureNames.npy'))
         
-    else:
-        features, featureNames = maf.getFeatures(rag, img, trainId)
-        np.save(testingFeatureSpacesPath + trainId + '.npy', features)
-        np.save(resultsPath + 'featureSpaces/featureNames.npy', featureNames)
+    #else:
+    #    features, featureNames = maf.getFeatures(rag, img, trainId)
+    #    np.save(testingFeatureSpacesPath + trainId + '.npy', features)
+    #    np.save(resultsPath + 'featureSpaces/featureNames.npy', featureNames)
         
-    
+    features = np.load('featureSpaces/full/' + trainId + '.npy')
+    featureNames = list(np.load('featureSpaces/full/featureNames.npy'))
+
+
     sys.stdout.write('\r')
     sys.stdout.write("[%-50s] %d%%" % ('='*int(float(i+1)/T*50), int(float(i+1)/T*100)))
     sys.stdout.flush()
 
-    # Norm to [-1, 1]
-    #for edgeWeights in features.transpose():
-    #    edgeWeights *= 2
-    #    edgeWeights -= 1
-    
-    
     trainingFeatureSpaces.append(features)
 t2 = time.time()
 
@@ -140,37 +138,37 @@ nodeNumStop        = 50         # desired num. nodes in result
 minSize            = 15
 
 print "Loading Testing Data...\n"
-###################### load images, ground truths and create rags ###########################
+############# load images and convert to LAB #############
 T = len(os.listdir(testSetPath))
 for root, dirs, files in path:
     for i, filename in enumerate(files):
         if (filename.endswith('.jpg')):
-            
-			sys.stdout.write('\r')
-			sys.stdout.write("[%-50s] %d%%" % ('='*int(float(i+1)/T*50), int(float(i+1)/T*100)))
-			sys.stdout.flush()
 
-			fileId = filename[:-4]
-			testIds.append(fileId)
-			img = vigra.impex.readImage(root + filename)
-			imgLab = vigra.colors.transform_RGB2Lab(img)
-			testImgs.append(img)
+            sys.stdout.write('\r')
+            sys.stdout.write("[%-50s] %d%%" % ('='*int(float(i+1)/T*50), int(float(i+1)/T*100)))
+            sys.stdout.flush()
 
-			gridGraph = graphs.gridGraph(img.shape[0:2])
+            fileId = filename[:-4]
+            testIds.append(fileId)
+            img = vigra.impex.readImage(root + filename)
+            imgLab = vigra.colors.transform_RGB2Lab(img)
+            testImgs.append(img)
 
-			slicLabels = vigra.analysis.labelImage(vigra.analysis.slicSuperpixels(imgLab, slicWeight, superpixelDiameter, minSize=minSize)[0])
-			rag = graphs.regionAdjacencyGraph(gridGraph, slicLabels)
-			testRags.append(rag) 
+            gridGraph = graphs.gridGraph(img.shape[0:2])
 
-			#gtWatershed = loadmat('trainingSet/groundTruth/' + fileId + '.mat')['groundTruth'][0,0][0][0][0]
-			#gtLabel = maf.getSuperpixelLabelList(rag, gtWatershed)
-			
-			gtLabel = np.load('groundTruthLabels/' + fileId + '.npy')
+            slicLabels = vigra.analysis.labelImage(vigra.analysis.slicSuperpixels(imgLab, slicWeight, superpixelDiameter, minSize=minSize)[0])
+            rag = graphs.regionAdjacencyGraph(gridGraph, slicLabels)
+            testRags.append(rag) 
 
-			testingGtLabels.append(gtLabel)
-			testingGtSols.append(maf.getGroundTruthSol(rag, gtLabel))       
+            #gtWatershed = loadmat('trainingSet/groundTruth/' + fileId + '.mat')['groundTruth'][0,0][0][0][0]
+            #gtLabel = maf.getSuperpixelLabelList(rag, gtWatershed)
 
-            
+            gtLabel = np.load('groundTruthLabels/' + fileId + '.npy')
+
+            testingGtLabels.append(gtLabel)
+            testingGtSols.append(maf.getGroundTruthSol(rag, gtLabel))       
+
+
 testFeatureSpaces = []
 testEdges = []
 
@@ -184,22 +182,18 @@ T = len(testImgs)
 for i, (rag, img, testId) in enumerate(zip(testRags, testImgs, testIds)):
     testEdges.append(rag.uvIds().astype('uint64'))
     
-    if (os.path.isfile(testingFeatureSpacesPath + testId + '.npy') == True):
-        features = np.load(testingFeatureSpacesPath + testId + '.npy')
+    #if (os.path.isfile(testingFeatureSpacesPath + testId + '.npy') == True):
+    #    features = np.load(testingFeatureSpacesPath + testId + '.npy')
         
-    else:
-        features = maf.getFeatures(rag, img, testId)[0]
-        np.save(testingFeatureSpacesPath + testId + '.npy', features)
+    #else:
+    #    features = maf.getFeatures(rag, img, testId)[0]
+    #    np.save(testingFeatureSpacesPath + testId + '.npy', features)
+
+    features = np.load('featureSpaces/full/' + testId + '.npy')
 
     sys.stdout.write('\r')
     sys.stdout.write("[%-50s] %d%%" % ('='*int(float(i+1)/T*50), int(float(i+1)/T*100)))
     sys.stdout.flush()
-
-    # Norm to [-1, 1]
-    #for edgeWeights in features.transpose():
-    #    edgeWeights *= 2
-    #    edgeWeights -= 1
-    
 
     testFeatureSpaces.append(features)
 nFeatures = trainingFeatureSpaces[0].shape[1]
@@ -211,11 +205,11 @@ print "\nTime to built up Testing Feature Space:", t2-t1, "sec"
 
 ########################## Subgradient Learner (partitionHamming) ########################################
 
-
+'''
 weightConstraints = inferno.learning.WeightConstraints(nFeatures)
 weightConstraints.addBound(1, -1.01, -0.99)
 
-subGradParameter = dict(maxIterations=100, nThreads=4, n=0.1)
+subGradParameter = dict(maxIterations=50, nThreads=4, n=0.1)
 weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, trainingGtLabels,
                                    loss='partitionHamming', learnerParameter=subGradParameter, 
                                    weightConstraints=weightConstraints, regularizerStr=1.)
@@ -224,19 +218,26 @@ np.save(resultsPath + 'partitionHamming/weights.npy', weightVector)
 
 maf.performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, testingGtLabels, 
 					featureNames, weightVector, resultsPath + 'partitionHamming/')
+'''
+
+auxWeightVector = np.load(resultsPath + 'partitionHamming/weights.npy')
+weightVector = inferno.learning.WeightVector(auxWeightVector.shape[0], 0.0)
+for n in range(len(weightVector)):
+    weightVector[n] = auxWeightVector[n]
 
 
 ########################## Add Random Forest Feature ###################################
 
-print "Building up Random Forest..."
-rfPath = resultsPath + 'RF.hdf5'
-if (os.path.isfile(rfPath)):
-    RF = vigra.learning.RandomForest(rfPath)
-else:
-	t1 = time.time()
-    RF = maf.buildRandomForest(trainingFeatureSpaces, trainingGtSols, rfPath)
-    t2 = time.time()
-    print "Time to built Random Forest: ", t2-t1, "sec"
+#print 'Building up Random Forest...'
+#rfPath = resultsPath + 'RF.hdf5'
+#if (os.path.isfile(rfPath)):
+#    RF = vigra.learning.RandomForest(rfPath)
+#else:
+#    RF = maf.buildRandomForest(trainingFeatureSpaces, trainingGtSols, rfPath)
+
+print "Loading Random Forest..."
+RF = vigra.learning.RandomForest('featureSpaces/full/RF.hdf5')
+print "Random Forest loaded"
 
 trainingRfProbs = maf.getProbsFromRF(trainingFeatureSpaces, RF)
 trainingFeatureSpaces[:] = [np.concatenate((featureSpace, (prob[:,1]).reshape(prob.shape[0],1)), axis=1) for featureSpace, prob in zip(trainingFeatureSpaces, trainingRfProbs)]
@@ -263,9 +264,9 @@ for w in range(auxWeightVec.shape[0]):
 ############################ Stochastic Gradient Learner (Variation of Information) ##########################
 
 weightConstraints = inferno.learning.WeightConstraints(nFeatures)
-weightConstraints.addBound(nFeatures-1, -1.01, -0.99)
+#weightConstraints.addBound(1, -1.01, -0.99)
 
-StochGradParameter = dict(maxIterations=2, nPertubations=3, sigma=1.7, n=1., seed=1) 
+StochGradParameter = dict(maxIterations=1, nPertubations=3, sigma=1.7, n=1., seed=1) 
 weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, trainingGtLabels,
                                    loss='variationOfInformation', learnerParameter=StochGradParameter, 
                                    regularizerStr=1., weightConstraints=weightConstraints, start=weightVector)
