@@ -112,12 +112,14 @@ namespace learners{
 
                 for(size_t i=0; i<options_.maxIterations_; ++i){
                    
-                    std::cout << "Iteration " << i+1 << "\n";
+                    std::cout << "Iteration " << i << "\n";
 
                     indices.randomShuffle();
                     // FIXME indices.randomShuffle(rng);
 
                     for(const auto trainingInstanceIndex : indices){
+
+                        std::cout << "Image " << trainingInstanceIndex << "\n";
 
                         // unlock model
                         dset.unlock(trainingInstanceIndex);
@@ -354,6 +356,15 @@ namespace learners{
                     improvment = true;
                     bestVal = ll;
                     bestIndex = i;
+
+                    // Save current bestWeight
+                    std::ofstream backupBestWeightsFile("/home/argo/HCI/bachelorarbeit/sgBackupWeights.txt");
+                    for (const auto& w : bestWeight) {
+                        backupBestWeightsFile << w << "\n";
+                    }
+                    backupBestWeightsFile.close();
+
+
                     return true;        // wahrscheinlich auch suboptimal ohne die anderen zu probieren.. 
                 }
                 if(ll<bestVal){

@@ -13,7 +13,7 @@ import inferno
 import multicutAuxFunctions as maf
 
 
-resultsPath = 'results/151201_buildingUpFullFeatureSpaces/'
+resultsPath = 'results/151201_buildi/'
 
 if not os.path.exists(resultsPath):
     os.makedirs(resultsPath)
@@ -45,7 +45,7 @@ nodeNumStop        = 50      # desired num. nodes in result
 minSize            = 15
 
 print "Loading Training Data..."
-############# load images and convert to LAB #############
+###################### load images, ground truths and create rags ###########################
 for root, dirs, files in path:
     jpgFiles = [filename for filename in files if filename.endswith('.jpg')]
     T = len(jpgFiles)
@@ -68,14 +68,16 @@ for root, dirs, files in path:
         rag = graphs.regionAdjacencyGraph(gridGraph, slicLabels)
         trainingRags.append(rag)
         
-        gtWatershed = loadmat('trainingSet/groundTruth/' + fileId + '.mat')['groundTruth'][0,0][0][0][0]
-        gtLabel = maf.getSuperpixelLabelList(rag, gtWatershed)
+        #gtWatershed = loadmat('trainingSet/groundTruth/' + fileId + '.mat')['groundTruth'][0,0][0][0][0]
+        #gtLabel = maf.getSuperpixelLabelList(rag, gtWatershed)
+        
+        gtLabel = np.load('groundTruthLabels/' + fileId + '.npy')
+
         trainingGtLabels.append(gtLabel)
         
         trainingGtSols.append(maf.getGroundTruthSol(rag, gtLabel))
 
 ### Feature Spaces
-# Training
 
 testingFeatureSpacesPath = resultsPath + 'featureSpaces/training/'
 
@@ -102,6 +104,12 @@ for i, (rag, img, trainId) in enumerate(zip(trainingRags, trainingImgs, training
     sys.stdout.write('\r')
     sys.stdout.write("[%-50s] %d%%" % ('='*int(float(i+1)/T*50), int(float(i+1)/T*100)))
     sys.stdout.flush()
+
+    # Norm to [-1, 1]
+    #for edgeWeights in features.transpose():
+    #    edgeWeights *= 2
+    #    edgeWeights -= 1
+    
     
     trainingFeatureSpaces.append(features)
 t2 = time.time()
@@ -132,7 +140,7 @@ nodeNumStop        = 50         # desired num. nodes in result
 minSize            = 15
 
 print "Loading Testing Data...\n"
-############# load images and convert to LAB #############
+###################### load images, ground truths and create rags ###########################
 T = len(os.listdir(testSetPath))
 for root, dirs, files in path:
     for i, filename in enumerate(files):
@@ -154,10 +162,12 @@ for root, dirs, files in path:
 			rag = graphs.regionAdjacencyGraph(gridGraph, slicLabels)
 			testRags.append(rag) 
 
-			gtWatershed = loadmat('trainingSet/groundTruth/' + fileId + '.mat')['groundTruth'][0,0][0][0][0]
-			gtLabel = maf.getSuperpixelLabelList(rag, gtWatershed)
-			testingGtLabels.append(gtLabel)
+			#gtWatershed = loadmat('trainingSet/groundTruth/' + fileId + '.mat')['groundTruth'][0,0][0][0][0]
+			#gtLabel = maf.getSuperpixelLabelList(rag, gtWatershed)
+			
+			gtLabel = np.load('groundTruthLabels/' + fileId + '.npy')
 
+			testingGtLabels.append(gtLabel)
 			testingGtSols.append(maf.getGroundTruthSol(rag, gtLabel))       
 
             
@@ -185,6 +195,12 @@ for i, (rag, img, testId) in enumerate(zip(testRags, testImgs, testIds)):
     sys.stdout.write("[%-50s] %d%%" % ('='*int(float(i+1)/T*50), int(float(i+1)/T*100)))
     sys.stdout.flush()
 
+    # Norm to [-1, 1]
+    #for edgeWeights in features.transpose():
+    #    edgeWeights *= 2
+    #    edgeWeights -= 1
+    
+
     testFeatureSpaces.append(features)
 nFeatures = trainingFeatureSpaces[0].shape[1]
 t2 = time.time()
@@ -195,11 +211,11 @@ print "\nTime to built up Testing Feature Space:", t2-t1, "sec"
 
 ########################## Subgradient Learner (partitionHamming) ########################################
 
-'''
+
 weightConstraints = inferno.learning.WeightConstraints(nFeatures)
 weightConstraints.addBound(1, -1.01, -0.99)
 
-subGradParameter = dict(maxIterations=200, nThreads=4, n=0.1)
+subGradParameter = dict(maxIterations=100, nThreads=4, n=0.1)
 weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, trainingGtLabels,
                                    loss='partitionHamming', learnerParameter=subGradParameter, 
                                    weightConstraints=weightConstraints, regularizerStr=1.)
@@ -212,11 +228,15 @@ maf.performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, t
 
 ########################## Add Random Forest Feature ###################################
 
+print "Building up Random Forest..."
 rfPath = resultsPath + 'RF.hdf5'
 if (os.path.isfile(rfPath)):
     RF = vigra.learning.RandomForest(rfPath)
 else:
+	t1 = time.time()
     RF = maf.buildRandomForest(trainingFeatureSpaces, trainingGtSols, rfPath)
+    t2 = time.time()
+    print "Time to built Random Forest: ", t2-t1, "sec"
 
 trainingRfProbs = maf.getProbsFromRF(trainingFeatureSpaces, RF)
 trainingFeatureSpaces[:] = [np.concatenate((featureSpace, (prob[:,1]).reshape(prob.shape[0],1)), axis=1) for featureSpace, prob in zip(trainingFeatureSpaces, trainingRfProbs)]
@@ -242,8 +262,10 @@ for w in range(auxWeightVec.shape[0]):
 
 ############################ Stochastic Gradient Learner (Variation of Information) ##########################
 
+weightConstraints = inferno.learning.WeightConstraints(nFeatures)
+weightConstraints.addBound(nFeatures-1, -1.01, -0.99)
 
-StochGradParameter = dict(maxIterations=10, nPertubations=3, sigma=1.7, n=1., seed=1) 
+StochGradParameter = dict(maxIterations=2, nPertubations=3, sigma=1.7, n=1., seed=1) 
 weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, trainingGtLabels,
                                    loss='variationOfInformation', learnerParameter=StochGradParameter, 
                                    regularizerStr=1., weightConstraints=weightConstraints, start=weightVector)
@@ -254,7 +276,7 @@ maf.performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, t
 					featureNames, weightVector, resultsPath + 'VOI/')
 
 
-'''
+
 
 
 
