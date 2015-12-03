@@ -13,12 +13,12 @@ import inferno
 import multicutAuxFunctions as maf
 
 
-resultsPath = 'results/151202_oldGoodResults/'
+resultsPath = 'results/151202_oldGoodResults_voi_w\o_constraint/'
 
 if not os.path.exists(resultsPath):
     os.makedirs(resultsPath)
-    os.makedirs(resultsPath + 'featureSpaces/training')
-    os.makedirs(resultsPath + 'featureSpaces/testing')
+    #os.makedirs(resultsPath + 'featureSpaces/training')
+    #os.makedirs(resultsPath + 'featureSpaces/testing')
     os.makedirs(resultsPath + 'partitionHamming/segmentedImages')
     os.makedirs(resultsPath + 'VOI/segmentedImages')
 
@@ -203,29 +203,6 @@ print "\nTime to built up Testing Feature Space:", t2-t1, "sec"
 
 
 
-########################## Subgradient Learner (partitionHamming) ########################################
-
-'''
-weightConstraints = inferno.learning.WeightConstraints(nFeatures)
-weightConstraints.addBound(1, -1.01, -0.99)
-
-subGradParameter = dict(maxIterations=50, nThreads=4, n=0.1)
-weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, trainingGtLabels,
-                                   loss='partitionHamming', learnerParameter=subGradParameter, 
-                                   weightConstraints=weightConstraints, regularizerStr=1.)
-
-np.save(resultsPath + 'partitionHamming/weights.npy', weightVector)
-
-maf.performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, testingGtLabels, 
-					featureNames, weightVector, resultsPath + 'partitionHamming/')
-'''
-
-auxWeightVector = np.load(resultsPath + 'partitionHamming/weights.npy')
-weightVector = inferno.learning.WeightVector(auxWeightVector.shape[0], 0.0)
-for n in range(len(weightVector)):
-    weightVector[n] = auxWeightVector[n]
-
-
 ########################## Add Random Forest Feature ###################################
 
 #print 'Building up Random Forest...'
@@ -249,32 +226,69 @@ featureNames.append('RF_Prob')
 nFeatures = trainingFeatureSpaces[0].shape[1]
 
 
+
+########################## Subgradient Learner (partitionHamming) ########################################
+
+'''
+weightConstraints = inferno.learning.WeightConstraints(nFeatures)
+weightConstraints.addBound(1, -1.01, -0.99)
+
+subGradParameter = dict(maxIterations=80, nThreads=4, n=0.1)
+weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, trainingGtLabels,
+                                   loss='partitionHamming', learnerParameter=subGradParameter, 
+                                   weightConstraints=weightConstraints, regularizerStr=1.)
+
+weightVector = maf.normWeights(weightVector)
+
+np.save(resultsPath + 'partitionHamming/weights.npy', weightVector)
+
+maf.performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, testingGtLabels, 
+					featureNames, weightVector, resultsPath + 'partitionHamming/')
+
+'''
+
+# Load Previous partition Hamming Weights
+#print "Load previous partitionHammingWeights"
+#auxWeightVector = np.load(resultsPath + 'partitionHamming/weights.npy')
+#weightVector = inferno.learning.WeightVector(auxWeightVector.shape[0], 0.0)
+#for n in range(len(weightVector)):
+#    weightVector[n] = auxWeightVector[n]
+
+
+
 ################## extend weight vector for random forest features ########################
 
-auxWeightVec = np.zeros(len(weightVector))
-for w in range(len(weightVector)):
-    auxWeightVec[w] = weightVector[w]
+#auxWeightVec = np.zeros(len(weightVector))
+#for w in range(len(weightVector)):
+#    auxWeightVec[w] = weightVector[w]
     
-weightVector = inferno.learning.WeightVector(nFeatures, 0.0)
-for w in range(auxWeightVec.shape[0]):
-    weightVector[w] = auxWeightVec[w]
+#weightVector = inferno.learning.WeightVector(nFeatures, 0.0)
+#for w in range(auxWeightVec.shape[0]):
+#    weightVector[w] = auxWeightVec[w]
 
 
 
 ############################ Stochastic Gradient Learner (Variation of Information) ##########################
 
+# Load Previous VOI Weights
+print "Loading previous VOI weights"
+auxWeightVector = np.load(resultsPath + 'VOI/weights.npy')
+weightVector = inferno.learning.WeightVector(auxWeightVector.shape[0], 0.0)
+for n in range(len(weightVector)):
+    weightVector[n] = auxWeightVector[n]
+
 weightConstraints = inferno.learning.WeightConstraints(nFeatures)
-#weightConstraints.addBound(1, -1.01, -0.99)
+weightConstraints.addBound(nFeatures-1, -1.01, -0.99)
 
 StochGradParameter = dict(maxIterations=1, nPertubations=3, sigma=1.7, n=1., seed=1) 
 weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, trainingGtLabels,
                                    loss='variationOfInformation', learnerParameter=StochGradParameter, 
                                    regularizerStr=1., weightConstraints=weightConstraints, start=weightVector)
 
-np.save(resultsPath + 'VOI/weights.npy', weightVector)
+np.save(resultsPath + 'VOI_2ndIter/weights2.npy', weightVector)
 
 maf.performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, testingGtLabels, 
-					featureNames, weightVector, resultsPath + 'VOI/')
+					featureNames, weightVector, resultsPath + 'VOI_2ndIter/')
 
 
 
