@@ -34,4 +34,4 @@
 \defcounter {refsection}{0}\relax 
 \vspace {\beforebibskip }
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{\spacedlowsmallcaps {Literatur}}{15}{dummy.7}
+\contentsline {chapter}{\spacedlowsmallcaps {Literatur}}{15}{dummy.6}

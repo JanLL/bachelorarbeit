@@ -13,7 +13,7 @@ import inferno
 import multicutAuxFunctions as maf
 
 
-resultsPath = 'results/151202_oldGoodResults_voi_w\o_constraint/'
+resultsPath = 'results/151204_weightsIn[-1,1]_ph_w\oRF_voi_w\RF_w\ConstrOnRF/'
 
 if not os.path.exists(resultsPath):
     os.makedirs(resultsPath)
@@ -80,7 +80,7 @@ for root, dirs, files in path:
 ### Feature Spaces
 # Training
 
-testingFeatureSpacesPath = resultsPath + 'featureSpaces/training/'
+#testingFeatureSpacesPath = resultsPath + 'featureSpaces/training/'
 
 trainingFeatureSpaces = []
 trainingEdges = []
@@ -172,9 +172,7 @@ for root, dirs, files in path:
 testFeatureSpaces = []
 testEdges = []
 
-testingFeatureSpacesPath = resultsPath + 'featureSpaces/testing/'
-if not os.path.exists(testingFeatureSpacesPath):
-    os.makedirs(testingFeatureSpacesPath)
+#testingFeatureSpacesPath = resultsPath + 'featureSpaces/testing/'
 
 t1 = time.time()
 print "\nBuilding up Testing Feature Space..."
@@ -202,34 +200,29 @@ t2 = time.time()
 print "\nTime to built up Testing Feature Space:", t2-t1, "sec"
 
 
+########################## Norm Feature Spaces to [-1, 1] ############################################
 
-########################## Add Random Forest Feature ###################################
+print "Start to change Norm of Feature Spaces to [-1, 1]..."
+t1 = time.time()
+for n in range(len(trainingFeatureSpaces)):
+    featureSpace = trainingFeatureSpaces[n]
+    for edgeWeights in featureSpace.transpose():
+        edgeWeights *= 2
+        edgeWeights -= 1
 
-#print 'Building up Random Forest...'
-#rfPath = resultsPath + 'RF.hdf5'
-#if (os.path.isfile(rfPath)):
-#    RF = vigra.learning.RandomForest(rfPath)
-#else:
-#    RF = maf.buildRandomForest(trainingFeatureSpaces, trainingGtSols, rfPath)
+for n in range(len(testFeatureSpaces)):
+    featureSpace = testFeatureSpaces[n]
+    for edgeWeights in featureSpace.transpose():
+        edgeWeights *= 2
+        edgeWeights -= 1
 
-print "Loading Random Forest..."
-RF = vigra.learning.RandomForest('featureSpaces/full/RF.hdf5')
-print "Random Forest loaded"
+t2 = time.time()
 
-trainingRfProbs = maf.getProbsFromRF(trainingFeatureSpaces, RF)
-trainingFeatureSpaces[:] = [np.concatenate((featureSpace, (prob[:,1]).reshape(prob.shape[0],1)), axis=1) for featureSpace, prob in zip(trainingFeatureSpaces, trainingRfProbs)]
-
-testingRfProbs = maf.getProbsFromRF(testFeatureSpaces, RF)
-testFeatureSpaces[:] = [np.concatenate((featureSpace, (prob[:,1]).reshape(prob.shape[0],1)), axis=1) for featureSpace, prob in zip(testFeatureSpaces, testingRfProbs)]
-
-featureNames.append('RF_Prob')
-nFeatures = trainingFeatureSpaces[0].shape[1]
-
-
+print "Time to change norm on Feature Spaces: ", t2-t1
 
 ########################## Subgradient Learner (partitionHamming) ########################################
 
-'''
+
 weightConstraints = inferno.learning.WeightConstraints(nFeatures)
 weightConstraints.addBound(1, -1.01, -0.99)
 
@@ -245,7 +238,7 @@ np.save(resultsPath + 'partitionHamming/weights.npy', weightVector)
 maf.performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, testingGtLabels, 
 					featureNames, weightVector, resultsPath + 'partitionHamming/')
 
-'''
+
 
 # Load Previous partition Hamming Weights
 #print "Load previous partitionHammingWeights"
@@ -255,27 +248,72 @@ maf.performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, t
 #    weightVector[n] = auxWeightVector[n]
 
 
+########################## Add Random Forest Feature ###################################
+
+#print 'Building up Random Forest...'
+#rfPath = resultsPath + 'RF.hdf5'
+#if (os.path.isfile(rfPath)):
+#    RF = vigra.learning.RandomForest(rfPath)
+#else:
+#    RF = maf.buildRandomForest(trainingFeatureSpaces, trainingGtSols, rfPath)
+
+print "Loading Random Forest..."
+RF = vigra.learning.RandomForest('featureSpaces/full/RF.hdf5')
+print "Get probabilities from Random Forest..."
+trainingRfProbs = maf.getProbsFromRF(trainingFeatureSpaces, RF)
+print "Got successfully probabilities from Random Forest and apply them now to Feature Spaces..."
+trainingFeatureSpaces[:] = [np.concatenate((featureSpace, (prob[:,1]).reshape(prob.shape[0],1)), axis=1) for featureSpace, prob in zip(trainingFeatureSpaces, trainingRfProbs)]
+
+testingRfProbs = maf.getProbsFromRF(testFeatureSpaces, RF)
+testFeatureSpaces[:] = [np.concatenate((featureSpace, (prob[:,1]).reshape(prob.shape[0],1)), axis=1) for featureSpace, prob in zip(testFeatureSpaces, testingRfProbs)]
+
+featureNames.append('RF_Prob')
+nFeatures = trainingFeatureSpaces[0].shape[1]
+
+
+########################## Norm Feature Spaces to [-1, 1] ############################################
+
+print "Start to change Norm of Feature Spaces to [-1, 1]..."
+t1 = time.time()
+for n in range(len(trainingFeatureSpaces)):
+    featureSpace = trainingFeatureSpaces[n]
+    edgeWeightsRF = featureSpace.transpose()[-1]
+    edgeWeightsRF *= 2
+    edgeWeightsRF -= 1
+
+for n in range(len(testFeatureSpaces)):
+    featureSpace = testFeatureSpaces[n]
+    edgeWeightsRF = featureSpace.transpose()[-1]
+    edgeWeightsRF *= 2
+    edgeWeightsRF -= 1
+
+t2 = time.time()
+
+print "Time to change norm on Feature Spaces: ", t2-t1
+
+
 
 ################## extend weight vector for random forest features ########################
 
-#auxWeightVec = np.zeros(len(weightVector))
-#for w in range(len(weightVector)):
-#    auxWeightVec[w] = weightVector[w]
+auxWeightVec = np.zeros(len(weightVector))
+for w in range(len(weightVector)):
+    auxWeightVec[w] = weightVector[w]
     
-#weightVector = inferno.learning.WeightVector(nFeatures, 0.0)
-#for w in range(auxWeightVec.shape[0]):
-#    weightVector[w] = auxWeightVec[w]
+weightVector = inferno.learning.WeightVector(nFeatures, 0.0)
+for w in range(auxWeightVec.shape[0]):
+    weightVector[w] = auxWeightVec[w]
 
 
 
 ############################ Stochastic Gradient Learner (Variation of Information) ##########################
 
 # Load Previous VOI Weights
-print "Loading previous VOI weights"
-auxWeightVector = np.load(resultsPath + 'VOI/weights.npy')
-weightVector = inferno.learning.WeightVector(auxWeightVector.shape[0], 0.0)
-for n in range(len(weightVector)):
-    weightVector[n] = auxWeightVector[n]
+#print "Loading previous VOI weights"
+#auxWeightVector = np.load(resultsPath + 'VOI/weights.npy')
+#weightVector = inferno.learning.WeightVector(auxWeightVector.shape[0], 0.0)
+#for n in range(len(weightVector)):
+#    weightVector[n] = auxWeightVector[n]
+
 
 weightConstraints = inferno.learning.WeightConstraints(nFeatures)
 weightConstraints.addBound(nFeatures-1, -1.01, -0.99)
@@ -285,10 +323,10 @@ weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, training
                                    loss='variationOfInformation', learnerParameter=StochGradParameter, 
                                    regularizerStr=1., weightConstraints=weightConstraints, start=weightVector)
 
-np.save(resultsPath + 'VOI_2ndIter/weights2.npy', weightVector)
+np.save(resultsPath + 'VOI/weights.npy', weightVector)
 
 maf.performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, testingGtLabels, 
-					featureNames, weightVector, resultsPath + 'VOI_2ndIter/')
+					featureNames, weightVector, resultsPath + 'VOI/')
 
 
 
