@@ -18,7 +18,9 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {chapter}{\numberline {2}\spacedlowsmallcaps {Theoretische Grundladen}}{7}{chapter.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {2.1}Das Multicut Problem (MP)}{7}{section.2.1}
+\contentsline {section}{\numberline {2.1}Graphen Theorie}{7}{section.2.1}
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {2.2}Das Multicut Problem (MP)}{7}{section.2.2}
 \defcounter {refsection}{0}\relax 
 \contentsline {chapter}{\numberline {3}\spacedlowsmallcaps {Experimenteller Aufbau}}{9}{chapter.3}
 \defcounter {refsection}{0}\relax 

@@ -13,7 +13,7 @@ import inferno
 import multicutAuxFunctions as maf
 
 
-resultsPath = 'results/151204_weightsIn[-1,1]_ph_w\oRF_voi_w\RF_w\ConstrOnRF/'
+resultsPath = 'results/151206_weightsIn[-1,1]_w\Ph_w\Rf_voi_w\RF_w\ConstrOnRF_2/'
 
 if not os.path.exists(resultsPath):
     os.makedirs(resultsPath)
@@ -40,7 +40,6 @@ trainingRags = []
 
 superpixelDiameter = 20      # super-pixel size
 slicWeight         = 25.0    # SLIC color - spatial weight
-beta               = 0.5     # node vs edge weight
 nodeNumStop        = 50      # desired num. nodes in result
 minSize            = 15
 
@@ -133,7 +132,6 @@ testingGtSols = []
 
 superpixelDiameter = 20       # super-pixel size
 slicWeight         = 25.0     # SLIC color - spatial weight
-beta               = 0.5     # node vs edge weight
 nodeNumStop        = 50         # desired num. nodes in result
 minSize            = 15
 
@@ -200,54 +198,6 @@ t2 = time.time()
 print "\nTime to built up Testing Feature Space:", t2-t1, "sec"
 
 
-########################## Norm Feature Spaces to [-1, 1] ############################################
-
-print "Start to change Norm of Feature Spaces to [-1, 1]..."
-t1 = time.time()
-for n in range(len(trainingFeatureSpaces)):
-    featureSpace = trainingFeatureSpaces[n]
-    for edgeWeights in featureSpace.transpose():
-        edgeWeights *= 2
-        edgeWeights -= 1
-
-for n in range(len(testFeatureSpaces)):
-    featureSpace = testFeatureSpaces[n]
-    for edgeWeights in featureSpace.transpose():
-        edgeWeights *= 2
-        edgeWeights -= 1
-
-t2 = time.time()
-
-print "Time to change norm on Feature Spaces: ", t2-t1
-
-########################## Subgradient Learner (partitionHamming) ########################################
-
-
-weightConstraints = inferno.learning.WeightConstraints(nFeatures)
-weightConstraints.addBound(1, -1.01, -0.99)
-
-subGradParameter = dict(maxIterations=80, nThreads=4, n=0.1)
-weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, trainingGtLabels,
-                                   loss='partitionHamming', learnerParameter=subGradParameter, 
-                                   weightConstraints=weightConstraints, regularizerStr=1.)
-
-weightVector = maf.normWeights(weightVector)
-
-np.save(resultsPath + 'partitionHamming/weights.npy', weightVector)
-
-maf.performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, testingGtLabels, 
-					featureNames, weightVector, resultsPath + 'partitionHamming/')
-
-
-
-# Load Previous partition Hamming Weights
-#print "Load previous partitionHammingWeights"
-#auxWeightVector = np.load(resultsPath + 'partitionHamming/weights.npy')
-#weightVector = inferno.learning.WeightVector(auxWeightVector.shape[0], 0.0)
-#for n in range(len(weightVector)):
-#    weightVector[n] = auxWeightVector[n]
-
-
 ########################## Add Random Forest Feature ###################################
 
 #print 'Building up Random Forest...'
@@ -277,6 +227,55 @@ print "Start to change Norm of Feature Spaces to [-1, 1]..."
 t1 = time.time()
 for n in range(len(trainingFeatureSpaces)):
     featureSpace = trainingFeatureSpaces[n]
+    for edgeWeights in featureSpace.transpose():
+        edgeWeights *= 2
+        edgeWeights -= 1
+
+for n in range(len(testFeatureSpaces)):
+    featureSpace = testFeatureSpaces[n]
+    for edgeWeights in featureSpace.transpose():
+        edgeWeights *= 2
+        edgeWeights -= 1
+
+t2 = time.time()
+
+print "Time to change norm on Feature Spaces: ", t2-t1
+
+########################## Subgradient Learner (partitionHamming) ########################################
+
+
+weightConstraints = inferno.learning.WeightConstraints(nFeatures)
+#weightConstraints.addBound(1, -1.01, -0.99)
+
+subGradParameter = dict(maxIterations=100, nThreads=4, n=0.1)
+weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, trainingGtLabels,
+                                   loss='partitionHamming', learnerParameter=subGradParameter, 
+                                   weightConstraints=weightConstraints, regularizerStr=1.)
+
+weightVector = maf.normWeights(weightVector)
+
+np.save(resultsPath + 'partitionHamming/weights.npy', weightVector)
+
+maf.performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, testingGtLabels, 
+					featureNames, weightVector, resultsPath + 'partitionHamming/')
+
+
+
+# Load Previous partition Hamming Weights
+#print "Load previous partitionHammingWeights"
+#auxWeightVector = np.load(resultsPath + 'partitionHamming/weights.npy')
+#weightVector = inferno.learning.WeightVector(auxWeightVector.shape[0], 0.0)
+#for n in range(len(weightVector)):
+#    weightVector[n] = auxWeightVector[n]
+
+
+
+########################## Norm Feature Spaces to [-1, 1] ############################################
+'''
+print "Start to change Norm of Feature Spaces to [-1, 1]..."
+t1 = time.time()
+for n in range(len(trainingFeatureSpaces)):
+    featureSpace = trainingFeatureSpaces[n]
     edgeWeightsRF = featureSpace.transpose()[-1]
     edgeWeightsRF *= 2
     edgeWeightsRF -= 1
@@ -290,11 +289,12 @@ for n in range(len(testFeatureSpaces)):
 t2 = time.time()
 
 print "Time to change norm on Feature Spaces: ", t2-t1
-
+'''
 
 
 ################## extend weight vector for random forest features ########################
 
+'''
 auxWeightVec = np.zeros(len(weightVector))
 for w in range(len(weightVector)):
     auxWeightVec[w] = weightVector[w]
@@ -302,7 +302,7 @@ for w in range(len(weightVector)):
 weightVector = inferno.learning.WeightVector(nFeatures, 0.0)
 for w in range(auxWeightVec.shape[0]):
     weightVector[w] = auxWeightVec[w]
-
+'''
 
 
 ############################ Stochastic Gradient Learner (Variation of Information) ##########################
@@ -318,7 +318,7 @@ for w in range(auxWeightVec.shape[0]):
 weightConstraints = inferno.learning.WeightConstraints(nFeatures)
 weightConstraints.addBound(nFeatures-1, -1.01, -0.99)
 
-StochGradParameter = dict(maxIterations=1, nPertubations=3, sigma=1.7, n=1., seed=1) 
+StochGradParameter = dict(maxIterations=2, nPertubations=3, sigma=0.3, n=1., seed=1) 
 weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, trainingGtLabels,
                                    loss='variationOfInformation', learnerParameter=StochGradParameter, 
                                    regularizerStr=1., weightConstraints=weightConstraints, start=weightVector)
