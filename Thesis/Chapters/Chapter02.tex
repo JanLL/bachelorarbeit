@@ -3,21 +3,36 @@
 %*****************************************
 \section{Graphen Theorie}\label{sec:graphTheory}
 
-Die Grundlage aller weiteren Betrachtungen ist ein sogenannter Region Adjacency Graph (RAG). Dieser wird erstellt indem das Bild in ähnlich große Segmente (Superpixel genannt) unterteilt wird, dessen Ränder möglichst an Objektkonturen verlaufen. Dies ermöglicht der sogenannte SLIC-Algorithmus (Zitat!!), das Ergebnis hiervon ist in (Abb verlinken) abgebildet. \\
+Die Grundlage aller weiteren Betrachtungen ist ein Region Adjacency Graph (RAG). Um diesen zu erstellen, wird das Bild zunächst mithilfe des SLIC-Algorithmus (Zitat!) in Superpixel unterteilt, dessen Ränder möglichst an den Objektkonturen verlaufen. Das Ergebnis hiervon ist in (Abb verlinken) abgebildet. 
 
-Der Region Adjacency Graph besteht aus sogenannten Nodes und Verbindungen zwischen diesen, Edges genannt. In unserem Fall entsprechen die Nodes den Superpixeln. Edges bestehen nur zwischen denjenigen Nodes, bei denen die zugehörigen Superpixel direkt angrenzen und eine gemeinsame Kante besitzen. 
+Der Region Adjacency Graph G baut sich aus Nodes V und Edges E auf. In unserem Fall entsprechen die Nodes den Superpixeln. Die Edges bestehen nur zwischen denjenigen Nodes, bei denen die zugehörigen Superpixel direkt angrenzen und somit eine gemeinsame Kante besitzen. 
 
 (hier SLIC-partition Bild und RAG-Bild einfügen)
 
 
 
 
+Bei der letztlichen Segmentierung geht es darum, ein konsistentes Labeling der Superpixel zu erreichen. Dies wird über die Aktivität der Edges erreicht, welche an- oder ausgeschaltet sein können. Für die Aktivität einer Edge $y$ gilt somit: $y \in \{\text{0, 1}\}$ \\
+Konsistent ist eine Segmentierung genau dann, wenn bei aktiven Edges die zugehörigen Superpixel verschiedene Labels haben und analog bei inaktiven Edges die Superpixel die gleichen Labels. Anschaulich gesehen ist dies der Fall, wenn alle aktiven Edges geschlossene Linien bilden.
 
-\section{Das Multicut Problem (MP)}\label{sec:multicutProb}
+Anhand des Feature Spaces werden jeder Edge D Gewichte zugeordnet, wie wahrscheinlich sie nun aktiv oder inaktiv sind. Zum konkreten Aufbau des Feature Spaces mehr in Kapitel bla.
+
+
+\section{Das Multicut Problem}\label{sec:multicutProb}
+
+Anhand dieser gewichteten Edges eine konsistente Segmentierung zu erhalten wird als Multicut Problem (MP) bezeichnet. Es wird durch folgendes Minimierungsproblem beschrieben: 
 
 
 
 
+\begin{equation} 
+\begin{array}{rrclcl}
+\displaystyle arg \min_{y_e} & \sum\limits_{y \in E} w \beta_e \cdot y \\
+\textrm{s.t.} &  y - \sum\limits_{y_i \in P(y)} y_i & \le & 0 
+\end{array}
+\end{equation}
+
+Hierbei entspricht $w \in \mathbb{R}^D$ den Weights und $\beta_e \in \mathbb{R}^D$ den Funktionswerten der D extrahierten Informationen des Feature Spaces.
 
 
 
