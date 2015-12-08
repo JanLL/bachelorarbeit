@@ -15,7 +15,11 @@ Der Region Adjacency Graph G baut sich aus Nodes V und Edges E auf. In unserem F
 Bei der letztlichen Segmentierung geht es darum, ein konsistentes Labeling der Superpixel zu erreichen. Dies wird über die Aktivität der Edges erreicht, welche an- oder ausgeschaltet sein können. Für die Aktivität einer Edge $y$ gilt somit: $y \in \{\text{0, 1}\}$ \\
 Konsistent ist eine Segmentierung genau dann, wenn bei aktiven Edges die zugehörigen Superpixel verschiedene Labels haben und analog bei inaktiven Edges die Superpixel die gleichen Labels. Anschaulich gesehen ist dies der Fall, wenn alle aktiven Edges geschlossene Linien bilden.
 
-Anhand des Feature Spaces werden jeder Edge D Gewichte zugeordnet, wie wahrscheinlich sie nun aktiv oder inaktiv sind. Zum konkreten Aufbau des Feature Spaces mehr in Kapitel bla.
+
+\section{Feature Space}\label{sec:featureSpace}
+
+Der Feature Space $\mathbb{F} \in \mathbb{R}^{|E|xD}$ ordnet jeder Edge D Features zu, die möglichst in Korrelation zur Frage stehen, ob die betrachtete Edge nun aktiv oder inaktiv sein soll. 
+
 
 
 \section{Das Multicut Problem}\label{sec:multicutProb}
@@ -23,16 +27,60 @@ Anhand des Feature Spaces werden jeder Edge D Gewichte zugeordnet, wie wahrschei
 Anhand dieser gewichteten Edges eine konsistente Segmentierung zu erhalten wird als Multicut Problem (MP) bezeichnet. Es wird durch folgendes Minimierungsproblem beschrieben: 
 
 
-
-
 \begin{equation} 
 \begin{array}{rrclcl}
 \displaystyle arg \min_{y_e} & \sum\limits_{y \in E} w \beta_e \cdot y \\
-\textrm{s.t.} &  y - \sum\limits_{y_i \in P(y)} y_i & \le & 0 
+\textrm{s.t.} &  y - \sum\limits_{y_i \in P(y)} y_i & \le & 0 & & \forall \ y \in E
 \end{array}
 \end{equation}
 
-Hierbei entspricht $w \in \mathbb{R}^D$ den Weights und $\beta_e \in \mathbb{R}^D$ den Funktionswerten der D extrahierten Informationen des Feature Spaces.
+Hierbei entspricht $w \in \mathbb{R}^D$ den Weights und $\beta_e \in \mathbb{R}^D$ den Funktionswerten der D extrahierten Informationen des Feature Spaces. Die Nebenbedingungen erzwingen die Konsistenz der Segmentierung. $P(y)$ ist hierbei der kürzeste Pfad über inaktive Edges der beiden Superpixel, die benachbart zu $y$ sind. In der Praxis wird das Minimierungsproblem zunächst ohne Constraints gelöst und anschließend solange für Edges hinzugefügt, die die Konsistenzbedingung verletzen, bis Konsistenz erreicht ist.
+
+\section{Loss Funktionen}
+
+Mithilfe einer Loss Funktion $\mathcal{L}(y, y^*)$ wird quantifiziert, wie gut eine Segmentierung $y$ mit derjenigen der Ground Truth $y^*$ übereinstimmt. In dieser Arbeit wird die neue Methode "Variation of Information" vorgestellt und mit der bestehenden "Partition Hamming" verglichen.
+
+\subsection{Partition Hamming}
+
+\begin{equation}
+\mathcal{L}(y_i, y_i^*) = \left\{ \begin{array}{lcc}  
+\mathbb{I}[y_i \neq y_i^*] \cdot \alpha_{over} & \text{if} & y_i^* = 0  \\ 
+\mathbb{I}[y_i \neq y_i^*] \cdot \alpha_{under} & \text{if} & y_i^* = 1         
+\end{array}  \right.  \quad \forall y_i \in E 
+\end{equation}
+
+\begin{equation}
+\mathcal{L}(y, y^*) = \sum\limits_{y_i \in E} \mathcal{L}(y_i, y_i^*)
+\end{equation}
+
+
+Es werden direkt die Edges der Segmentierung $y$ und der Ground Truth $y^*$ verglichen und bei fehlender Übereinstimmung erhöht sich der Loss. Meist ist $\alpha_{under} > \alpha_{over}$ um Übersegmentierung zu bevorzugen, da es tragischer ist Objekte nicht zu erfassen.
+
+\subsection{Variation of Information}
+
+\begin{equation}
+\mathcal{L}(y, y^*) = H_y + H_{y^*} - 2 \cdot I(y, y^*)
+\end{equation}
+
+$H_x$ ist hierbei die Entropie der Segmentierung $x$. Jede Segmentierung besitzt eine individuelle Entropie.  \\
+$I(x, x^*)$ bezeichnet die Transinformation, anschaulich gesehen entspricht diese der Schnittmenge der Ist- und Soll-Segmentierung. 
+Es werden also die Labels der Superpixel untersucht und bei fehlender Übereinstimmung beim Vergleich mit der Ground Truth erhöht sich der Loss.
+
+\section{Structured Learning}\label{sec:strucLearn}
+
+Um später mithilfe des Multicut Algorithmus Bilder möglichst gut segmentieren zu können, muss der Parameter $w$ bestimmt werden. "Möglichst gut" bedeutet hier in Bezug auf eine Loss Funktion, die als Qualitätskriterium dient. Da ein niedriger Loss für eine gute Segmentierung steht ist also das folgende Minimierungsproblem zu lösen:
+
+\begin{equation}
+\hat{w} = arg\min_{w} \mathcal{L}(y, y^*)
+\end{equation}
+
+\subsection{Subgradient Descent}
+
+Der Subgradient Descent Algorithmus basiert auf der Berechnung der Differenz der akkumulierten Feature der Segmentierung $y$ und der Ground Truth $y^*$, welche gewichtet dem weight Vector $w$ hinzuaddiert werden. Für nähere Details siehe \cite{cit1}
+
+
+\subsection{Stochastic Gradient}
+
 
 
 

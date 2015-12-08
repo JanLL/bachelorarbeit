@@ -1,39 +1,24 @@
-\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
-\defcounter {refsection}{0}\relax 
 \select@language {american}
-\defcounter {refsection}{0}\relax 
 \vspace {-\cftbeforepartskip }
-\defcounter {refsection}{0}\relax 
 \select@language {ngerman}
-\defcounter {refsection}{0}\relax 
 \select@language {ngerman}
-\defcounter {refsection}{0}\relax 
 \select@language {ngerman}
-\defcounter {refsection}{0}\relax 
 \contentsline {part}{\numberline {i}\spacedlowsmallcaps {Some Kind of Manual}}{1}{part.1}
-\defcounter {refsection}{0}\relax 
 \contentsline {chapter}{\numberline {1}\spacedlowsmallcaps {Einleitung}}{3}{chapter.1}
-\defcounter {refsection}{0}\relax 
 \contentsline {part}{\numberline {ii}\spacedlowsmallcaps {The Showcase}}{5}{part.2}
-\defcounter {refsection}{0}\relax 
 \contentsline {chapter}{\numberline {2}\spacedlowsmallcaps {Theoretische Grundladen}}{7}{chapter.2}
-\defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {2.1}Graphen Theorie}{7}{section.2.1}
-\defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {2.2}Das Multicut Problem}{7}{section.2.2}
-\defcounter {refsection}{0}\relax 
-\contentsline {chapter}{\numberline {3}\spacedlowsmallcaps {Experimenteller Aufbau}}{9}{chapter.3}
-\defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {3.1}Feature Space}{9}{section.3.1}
-\defcounter {refsection}{0}\relax 
-\contentsline {part}{\numberline {iii}\spacedlowsmallcaps {Appendix}}{11}{part.3}
-\defcounter {refsection}{0}\relax 
-\contentsline {chapter}{\numberline {A}\spacedlowsmallcaps {Appendix Test}}{13}{appendix.A}
-\defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {A.1}Appendix Section Test}{13}{section.A.1}
-\defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {A.2}Another Appendix Section Test}{13}{section.A.2}
-\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {2.2}Feature Space}{7}{section.2.2}
+\contentsline {section}{\numberline {2.3}Das Multicut Problem}{7}{section.2.3}
+\contentsline {section}{\numberline {2.4}Loss Funktionen}{8}{section.2.4}
+\contentsline {subsection}{\numberline {2.4.1}Partition Hamming}{8}{subsection.2.4.1}
+\contentsline {subsection}{\numberline {2.4.2}Variation of Information}{8}{subsection.2.4.2}
+\contentsline {section}{\numberline {2.5}Structured Learning}{8}{section.2.5}
+\contentsline {subsection}{\numberline {2.5.1}Subgradient Descent}{9}{subsection.2.5.1}
+\contentsline {subsection}{\numberline {2.5.2}Stochastic Gradient}{9}{subsection.2.5.2}
+\contentsline {chapter}{\numberline {3}\spacedlowsmallcaps {Experimenteller Aufbau}}{11}{chapter.3}
+\contentsline {section}{\numberline {3.1}Feature Space}{11}{section.3.1}
+\contentsline {part}{\numberline {iii}\spacedlowsmallcaps {Appendix}}{13}{part.3}
+\contentsline {chapter}{\numberline {A}\spacedlowsmallcaps {Appendix Test}}{15}{appendix.A}
 \vspace {\beforebibskip }
-\defcounter {refsection}{0}\relax 
-\contentsline {chapter}{\spacedlowsmallcaps {Literatur}}{15}{dummy.6}
+\contentsline {chapter}{\spacedlowsmallcaps {Literaturverzeichnis}}{17}{dummy.6}

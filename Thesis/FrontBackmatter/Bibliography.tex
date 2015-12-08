@@ -1,6 +1,7 @@
 %********************************************************************
 % Bibliography
 %*******************************************************
+
 % work-around to have small caps also here in the headline
 \manualmark
 \markboth{\spacedlowsmallcaps{\bibname}}{\spacedlowsmallcaps{\bibname}} % work-around to have small caps also
@@ -9,4 +10,17 @@
 \addtocontents{toc}{\protect\vspace{\beforebibskip}} % to have the bib a bit from the rest in the toc
 \addcontentsline{toc}{chapter}{\tocEntry{\bibname}}
 \label{app:bibliography}
-\printbibliography
+%\printbibliography[title={Referenzen}]
+
+
+\cite{lamport94}
+
+\begin{thebibliography}{9}
+
+\bibitem{NowozinStrucLearn11}
+  Sebastian Nowozin, Christoph H. Lampert,
+  \emph{Structured Learning and Prediction in Computer Vision},
+  2011.
+
+\end{thebibliography}
+
