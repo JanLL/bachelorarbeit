@@ -18,7 +18,7 @@ Konsistent ist eine Segmentierung genau dann, wenn bei aktiven Edges die zugehö
 
 \section{Feature Space}\label{sec:featureSpace}
 
-Der Feature Space $\mathbb{F} \in \mathbb{R}^{|E|xD}$ ordnet jeder Edge D Features zu, die möglichst in Korrelation zur Frage stehen, ob die betrachtete Edge nun aktiv oder inaktiv sein soll. 
+Der Feature Space $X \in \mathbb{R}^{|E|xD}$ ordnet jeder Edge D Features zu, die möglichst in Korrelation zur Frage stehen, ob die betrachtete Edge nun aktiv oder inaktiv sein soll. 
 
 
 
@@ -76,10 +76,30 @@ Um später mithilfe des Multicut Algorithmus Bilder möglichst gut segmentieren 
 
 \subsection{Subgradient Descent}
 
-Der Subgradient Descent Algorithmus basiert auf der Berechnung der Differenz der akkumulierten Feature der Segmentierung $y$ und der Ground Truth $y^*$, welche gewichtet dem weight Vector $w$ hinzuaddiert werden. Für nähere Details siehe \cite{cit1}
+Der Subgradient Descent Algorithmus basiert auf der Berechnung der Differenz der akkumulierten Feature der Segmentierung $y$ und der Ground Truth $y^*$, welche gewichtet dem weight Vector $w$ hinzuaddiert werden. Für nähere Details siehe \cite{NowozinStrucLearn11}.
 
+Die Minimierung des Partition Hamming Losses in dieser Arbeit wird hiermit realisiert.
 
 \subsection{Stochastic Gradient}
+
+Der hier verwendete Stochastic Gradient ist eine Variante des in \cite{NowozinStrucLearn11} näher erläuterten Algorithmus. Nachdem wie gewöhnlich bei Stochastic Gradient ein zufälliges Training Sample gewählt wurde, wird folgendermaßen die Gradientenrichtung bestimmt: Es wird zum momentanen Weight Vector nPerturbs mal ein normalverteilter Noise hinzuaddiert. Für jeden dieser verrauschten Weights wird der Loss bezüglich des momentan betrachteten Bildes berechnet. 
+Es wird nun, gewichtet nach der Veränderung im Loss, aus dem Noise die Gradientenrichtung berechnet. Je stärker der Loss gestiegen ist, desto größer ist sein Einfluss auf die neue Richtung. Analog mit gesunkenem Loss.
+
+Die beste Schrittweite wird nun ermittelt, indem der durchschnittliche Loss über das gesamte Trainingsset für verschiedene äquidistante Schrittweiten berechnet wird. Es wird diejenige Schrittweite mit dem niedrigsten Loss gewählt und falls ein neues globales Minimum gefunden wurde, der weight Vector gespeichert. \\
+
+vllt später mal so... :
+\begin{algorithm}
+\caption{Stochastic Gradient Descent}\label{sgd}
+\begin{algorithmic}[1]
+\Procedure{StochasticGradientDescent($T, \eta$)}{}
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+
+
+
+
 
 
 

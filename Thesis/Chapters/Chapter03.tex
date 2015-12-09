@@ -1,9 +1,46 @@
 %************************************************
-\chapter{Experimenteller Aufbau}\label{ch:mathtest} % $\mathbb{ZNR}$
+\chapter{Experimentelles Setup}\label{ch:mathtest} % $\mathbb{ZNR}$
 %************************************************
-bli bla blubb
+
+\section{Trainings- und Testdaten}
+
+Zum einen wurden Experimente an kleinen synthetisch erzeugten Bildern durchgeführt um die prinzipiellen Vorteile von Variation of Information zu demonstrieren. 
+
+Zum Anderen diente für die umfassenderen Experimente zur praktischen Anwendung das Berkeley Segmentation Dataset (BSD500) \cite{BSD}, welches aus natürlichen Bildern besteht. Es wurden hiervon die Test-Bilder genommen, da hierfür State of the Art Kantendetektoren als Feature zur Verfügung standen.
+
 
 \section{Feature Space}
+
+Für die synthetischen Daten wurden folgende Feature gewählt:
+\begin{itemize}
+	\item Gaussian Gradient Magnitude mit $\sigma=1$
+	\item Hessian of Gaussian Eigenvalues mit $\sigma=1$
+	\item Structure Tensor Eigenvalues
+\end{itemize}
+
+Beim BSD hat sich der Feature Space folgendermaßen zusammengesetzt:
+
+\begin{itemize}
+	\item Gaussian Gradient Magnitude mit $\sigma=\{1, 2, 5\}$
+	\item Hessian of Gaussian Eigenvalues mit $\sigma=2$
+	\item Laplacian of Gaussian
+	\item Structure Tensor Eigenvalues
+	\item Canny Filter
+	\item Statistische Kenndaten in variablen Bereichen $\bar{u}$ und $\bar{v}$ um eine Edge an Superpixeln u und v
+	\begin{itemize}
+		\item Mean($\bar{u} + \bar{v}$)
+		\item Variance($\bar{u} + \bar{v}$)
+		\item $\frac{\max{\{\text{Mean}(\bar{u}), \text{Mean}(\bar{v}) \}}}{\min{\{\text{Mean}(\bar{u}), \text{Mean}(\bar{v})}\}}$
+		\item $\frac{\max{\{\text{Median}(\bar{u}), \text{Median}(\bar{v}) \}}}{\min{\{\text{Median}(\bar{u}), \text{Median}(\bar{v})}\}}$
+		\item Skewness($\bar{u} + \bar{v}$)
+		\item Kurtosis($\bar{u} + \bar{v}$)
+	\end{itemize}
+	\item 
+\end{itemize}
+
+
+
+
 
 %*****************************************
 %*****************************************

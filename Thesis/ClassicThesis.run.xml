@@ -44,13 +44,13 @@
   <internal package="biblatex" priority="9" active="1">
     <generic>latex</generic>
     <provides type="dynamic">
-      <file>ClassicThesis.aux</file>
-      <file>ClassicThesis-blx.bib</file>
+      <file>ClassicThesis.bcf</file>
     </provides>
     <requires type="dynamic">
       <file>ClassicThesis.bbl</file>
     </requires>
     <requires type="static">
+      <file>blx-dm.def</file>
       <file>blx-compat.def</file>
       <file>biblatex.def</file>
       <file>blx-natbib.def</file>
@@ -66,15 +66,13 @@
     </requires>
   </internal>
   <external package="biblatex" priority="5" active="1">
-    <generic>bibtex</generic>
+    <generic>biber</generic>
     <cmdline>
-      <binary>bibtex8</binary>
-      <option>--wolfgang</option>
-      <option>--min_crossrefs 2</option>
+      <binary>biber</binary>
       <infile>ClassicThesis</infile>
     </cmdline>
     <input>
-      <file>ClassicThesis.aux</file>
+      <file>ClassicThesis.bcf</file>
     </input>
     <output>
       <file>ClassicThesis.bbl</file>
@@ -83,14 +81,10 @@
       <file>ClassicThesis.bbl</file>
     </provides>
     <requires type="dynamic">
-      <file>ClassicThesis.aux</file>
-      <file>ClassicThesis-blx.bib</file>
+      <file>ClassicThesis.bcf</file>
     </requires>
     <requires type="editable">
       <file>refs.bib</file>
-    </requires>
-    <requires type="static">
-      <file>biblatex.bst</file>
     </requires>
   </external>
 </requests>
