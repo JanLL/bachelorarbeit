@@ -75,7 +75,8 @@ namespace learners{
                 double TOL = 1e-8;
                 int lastImprove = 0;
 
-                std::ofstream output("/home/argo/HCI/bachelorarbeit/output.txt");
+                std::ofstream outputWeights("/home/argo/HCI/bachelorarbeit/outputWeights.txt");
+                std::ofstream outputLosses("/home/argo/HCI/bachelorarbeit/outputLosses.txt");
 
     
 
@@ -208,8 +209,8 @@ namespace learners{
                         }*/
                         
 
-                        //noiseMatrix.weightedSum(losses, gradient); // original absolute-weighted method
-                        noiseMatrix.weightedSum(relLosses, gradient);
+                        noiseMatrix.weightedSum(losses, gradient); // original absolute-weighted method
+                        //noiseMatrix.weightedSum(relLosses, gradient);
 
                         gradient *= dset.regularizer().c()/double(options_.nPertubations_);
 
@@ -222,11 +223,17 @@ namespace learners{
                                          bestWeight, i);
 
 
+                        // Print and save Losses in external file
+                        std::cout << "Current Loss: " << currentLoss_ << "\n";
+                        outputLosses << currentLoss_ << "\n";
+
+
+
                         // Save current weights in external file
                         for (const auto& w : weightVector) {
-                            output << std::fixed << std::setw(5) << w << "\t";
+                            outputWeights << std::fixed << std::setw(5) << w << "\t";
                         }
-                        output << "\n";
+                        outputWeights << "\n";
 
 
                         dset.updateWeights(weightVector);
@@ -246,8 +253,8 @@ namespace learners{
                 weightVector = bestWeight;
                 dset.updateWeights(weightVector);
 
-
-                output.close();
+                outputLosses.close();
+                outputWeights.close();
 
             }
             catch( const std::exception &e) { 
@@ -261,7 +268,7 @@ namespace learners{
 
 
 
-        bool takeGradientStep(
+        double takeGradientStep(
             InferenceFactoryBase * inferenceFactory,
             WeightVector & currentWeights,
             WeightVector & gradient,
@@ -376,6 +383,7 @@ namespace learners{
                 currentLoss_  = lossVal[bestIndex];
                 //std::cout<<"best via frac  "<<fracs[bestIndex]<<" loss "<<lossVal[bestIndex]<<"\n";
                 
+
              
 
                 /*for (const auto& lv : lossVal) {

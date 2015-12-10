@@ -9,6 +9,13 @@ Zum einen wurden Experimente an kleinen synthetisch erzeugten Bildern durchgefü
 Zum Anderen diente für die umfassenderen Experimente zur praktischen Anwendung das Berkeley Segmentation Dataset (BSD500) \cite{BSD}, welches aus natürlichen Bildern besteht. Es wurden hiervon die Test-Bilder genommen, da hierfür State of the Art Kantendetektoren als Feature zur Verfügung standen.
 
 
+\section{Graphical Model Unterbau und Solver}
+
+
+Zur Generierung des Region Adjacency Graphs, des Random Forests und der Filter wurde VIGRA \cite{VIGRA} verwendet. Inferno \cite{Inferno} zum Zusammenführen aller Daten, Lösen des Multicut Problems und Lernen der Parameter sowohl mit SubGradient bezüglich Partition Hamming, als auch mit Stochastic Gradient bezüglich Variation of Information.
+
+
+
 \section{Feature Space}
 
 Für die synthetischen Daten wurden folgende Feature gewählt:
