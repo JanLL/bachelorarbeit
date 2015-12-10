@@ -56,7 +56,7 @@ Mithilfe einer Loss Funktion $\mathcal{L}(y, y^*)$ wird quantifiziert, wie gut e
 
 Es werden direkt die Edges der Segmentierung $y$ und der Ground Truth $y^*$ verglichen und bei fehlender Übereinstimmung erhöht sich der Loss. Meist ist $\alpha_{under} > \alpha_{over}$ um Übersegmentierung zu bevorzugen, da es tragischer ist Objekte nicht zu erfassen.
 
-\subsection{Variation of Information}
+\subsection{Variation of Information}\label{sec:voi}
 
 \begin{equation}
 \mathcal{L}(y, y^*) = H_y + H_{y^*} - 2 \cdot I(y, y^*)

@@ -26,7 +26,10 @@ Beim BSD hat sich der Feature Space folgendermaßen zusammengesetzt:
 	\item Laplacian of Gaussian
 	\item Structure Tensor Eigenvalues
 	\item Canny Filter
-	\item Statistische Kenndaten in variablen Bereichen $\bar{u}$ und $\bar{v}$ um eine Edge an Superpixeln u und v
+	\item $N^4$-Fields Kantendetektor \cite{n4}
+	\item Structured Forests Kantendetektor \cite[Dollár et al.]{dollar}
+	\item Statistische Kenndaten in variablen Bereichen $\bar{u}$ und $\bar{v}$ um eine Edge an Superpixeln u und v \\
+	(seperat angewandt auf alle 3 Farbkanäle des eigentlichen Bildes, als auch auf den $N^4$-Fields- und Dollár-Kantendetektor)
 	\begin{itemize}
 		\item Mean($\bar{u} + \bar{v}$)
 		\item Variance($\bar{u} + \bar{v}$)
@@ -35,8 +38,12 @@ Beim BSD hat sich der Feature Space folgendermaßen zusammengesetzt:
 		\item Skewness($\bar{u} + \bar{v}$)
 		\item Kurtosis($\bar{u} + \bar{v}$)
 	\end{itemize}
-	\item 
+	\item Konstantes Feature für jede Edge, zur Beseitigung des Bias im Feature Space
 \end{itemize}
+
+Zusätzlich wurde aus den Feature Spaces aller Trainingsdaten ein Random Forest (RF) aufgebaut und dieser zur Generierung eines weiteren Features verwendet.
+
+
 
 
 
