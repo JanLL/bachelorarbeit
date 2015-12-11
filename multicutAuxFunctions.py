@@ -615,6 +615,8 @@ def performTesting2(testImgs, testRags, testEdges, testFeatureSpaces, testIds, t
 
 
     lossOutputFile.write('\n\t\t' + str(losses[:,0].mean()) + '\t\t' + str(losses[:,1].mean()))
+    lossOutputFile.write('\n\t\t' + str(np.sqrt(losses[:,0].var())) + '\t\t' + str(np.sqrt(losses[:,1].var())))
+
 
     lossOutputFile.close()
 

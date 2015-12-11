@@ -14,7 +14,7 @@ import inferno
 import multicutAuxFunctions as maf
 
 
-resultsPath = 'results/151210_weightsIn[-1,1]_ph_w\oRf_w\oConstr_voi_w\RF_w\oConstrOnRF_origGradDirSearch/'
+resultsPath = 'results/151211_weightsIn[0,1]_ph_w\oRf_w\oConstr_voi_w\RF_w\ConstrOnRF_origGradDirSearch/'
 
 if not os.path.exists(resultsPath):
     os.makedirs(resultsPath)
@@ -203,7 +203,7 @@ print "\nTime to built up Testing Feature Space:", t2-t1, "sec"
 
 
 ########################## Norm Feature Spaces to [-1, 1] ############################################
-
+'''
 print "Start to change Norm of Feature Spaces to [-1, 1]..."
 t1 = time.time()
 for n in range(len(trainingFeatureSpaces)):
@@ -221,10 +221,14 @@ for n in range(len(testFeatureSpaces)):
 t2 = time.time()
 
 print "Time to change norm on Feature Spaces: ", t2-t1
-
-########################## Subgradient Learner (partitionHamming) ########################################
 '''
 
+
+
+
+########################## Subgradient Learner (partitionHamming) ########################################
+
+'''
 weightConstraints = inferno.learning.WeightConstraints(nFeatures)
 #weightConstraints.addBound(1, -1.01, -0.99)
 
@@ -250,8 +254,6 @@ for n in range(len(weightVector)):
     weightVector[n] = auxWeightVector[n]
 
 
-
-
 ########################## Add Random Forest Feature ###################################
 
 #print 'Building up Random Forest...'
@@ -274,8 +276,10 @@ testFeatureSpaces[:] = [np.concatenate((featureSpace, (prob[:,1]).reshape(prob.s
 featureNames.append('RF_Prob')
 nFeatures = trainingFeatureSpaces[0].shape[1]
 
-########################## Norm Feature Spaces to [-1, 1] (just RF Feature) ############################################
 
+
+########################## Norm Feature Spaces to [-1, 1] (just RF Feature) ############################################
+'''
 print "Start to change Norm of Feature Spaces to [-1, 1]..."
 t1 = time.time()
 for n in range(len(trainingFeatureSpaces)):
@@ -294,7 +298,7 @@ t2 = time.time()
 
 print "Time to change norm on Feature Spaces: ", t2-t1
 
-
+'''
 
 ################## extend weight vector for random forest features ########################
 
@@ -320,9 +324,9 @@ for w in range(auxWeightVec.shape[0]):
 
 
 weightConstraints = inferno.learning.WeightConstraints(nFeatures)
-#weightConstraints.addBound(nFeatures-1, -1.01, -0.99)
+weightConstraints.addBound(featureNames.index('RF_Prob'), -1.01, -0.99)
 
-StochGradParameter = dict(maxIterations=1, nPertubations=3, sigma=1.7, n=.05, seed=1) 
+StochGradParameter = dict(maxIterations=1, nPertubations=3, sigma=0.3, n=.1, seed=1) 
 weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, trainingGtLabels,
                                    loss='variationOfInformation', learnerParameter=StochGradParameter, 
                                    regularizerStr=1., weightConstraints=weightConstraints, start=weightVector)
