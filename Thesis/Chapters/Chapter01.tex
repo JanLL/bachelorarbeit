@@ -4,7 +4,19 @@
 
 Das weite Forschungsfeld der Bildsegmentierung handelt von der Problemstellung, Bilder automatisiert in einzelne semantisch sinnvolle Segmente zu unterteilen. Anwendungsgebiete finden sich unter anderem in der Objekterkennung, Biologie, Medizin und allgemein Bildanalyse-Methoden, wobei die Segmentierung als Vorstufe zur weiteren Bearbeitung dient. \\
 
-(Hier Bild einfügen: Bild ohne Segmentierung -> Bild mit gewünschter Segmentierung) \\
+
+
+
+
+\begin{figure}[H]
+	\centering
+	\subfloat[Beispielbild]
+	{\includegraphics[width=.45\linewidth]{gfx/80090.png}}
+	\hfill
+	\subfloat[Segmentierung des Beispielbildes (hier Ground Truth)]
+	{\includegraphics[width=.45\linewidth]{gfx/80090_gtg.png}}
+\end{figure}
+
 
 Dieser Prozess soll Lern-basiert sein, d.h. es werden dem Algorithmus Trainingsdaten mit Beispielbildern inklusive Soll-Segmentierung (Ground Truth) übergeben. Anhand dieser werden Parameter optimiert um möglichst allgemeingültig, den Trainingsdaten ähnliche Bilder ebenso in einzelne Segmente gliedern zu können.
 

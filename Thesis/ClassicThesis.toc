@@ -4,7 +4,7 @@
 \select@language {ngerman}
 \select@language {ngerman}
 \contentsline {chapter}{\numberline {1}\spacedlowsmallcaps {Einleitung}}{1}{chapter.1}
-\contentsline {section}{\numberline {1.1}Motivation Variation of Information}{1}{section.1.1}
+\contentsline {section}{\numberline {1.1}Motivation Variation of Information}{2}{section.1.1}
 \contentsline {chapter}{\numberline {2}\spacedlowsmallcaps {Theoretische Grundladen}}{3}{chapter.2}
 \contentsline {section}{\numberline {2.1}Graphen Theorie}{3}{section.2.1}
 \contentsline {section}{\numberline {2.2}Feature Space}{3}{section.2.2}
