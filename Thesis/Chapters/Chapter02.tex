@@ -82,11 +82,7 @@ Die Minimierung des Partition Hamming Losses in dieser Arbeit wird hiermit reali
 
 \subsection{Stochastic Gradient}
 
-Der hier verwendete Stochastic Gradient ist eine Variante des in \cite{NowozinStrucLearn11} näher erläuterten Algorithmus. Im folgenden wird die hier angewandte Methode zur Ermittlung der Gradientenrichtung (Alg. \ref{alg:sg_dir}), sowie der Liniensuche (Alg. \ref{alg:sgd_ls}), also der Schrittweite pro Iterationsschritt beschrieben:
- %Nachdem wie gewöhnlich bei Stochastic Gradient ein zufälliges Training Sample gewählt wurde, wird folgendermaßen die Gradientenrichtung bestimmt: Es wird zum momentanen Weight Vector nPerturbs mal ein normalverteilter Noise hinzuaddiert. Für jeden dieser verrauschten Weights wird der Loss bezüglich des momentan betrachteten Bildes berechnet. 
-%Es wird nun, gewichtet nach der Veränderung im Loss, aus dem Noise die Gradientenrichtung berechnet. Je stärker der Loss gestiegen ist, desto größer ist sein Einfluss auf die neue Richtung. Analog mit gesunkenem Loss.
-%
-%Die beste Schrittweite wird nun ermittelt, indem der durchschnittliche Loss über das gesamte Trainingsset für verschiedene äquidistante Schrittweiten berechnet wird. Es wird diejenige Schrittweite mit dem niedrigsten Loss gewählt und falls ein neues globales Minimum gefunden wurde, der weight Vector gespeichert. \\
+Der hier verwendete Stochastic Gradient ist eine Variante des in \cite{NowozinStrucLearn11} näher erläuterten Algorithmus. Im folgenden wird die hier angewandte Methode zur Ermittlung der Gradientenrichtung (Alg. \ref{alg:sg_dir}), sowie der Liniensuche (Alg. \ref{alg:sgd_ls}), also der Schrittweite pro Iterationsschritt beschrieben: \\
 
 \begin{algorithm}
 \caption{Get Gradient Descent Direction}\label{alg:sg_dir}
@@ -107,8 +103,10 @@ Der hier verwendete Stochastic Gradient ist eine Variante des in \cite{NowozinSt
 \end{algorithmic}
 \end{algorithm}
 
+Um die Gradientenrichtung zu bestimmen wird also zunächst in nPerturbs verschiedene normalverteilte Richtungen, vom momentanen Weight Vector aus, der Loss auf dem aktuellen Bild berechnet. Anschließend werden die einzelnen Richtungen nach ihrem Loss gewichtet, wodurch man eine Richtung starken Anstieges ermittelt hat. Daher ist am Ende noch ein Vorzeichenwechsel nötig.
 
-\begin{algorithm}
+
+\begin{algorithm}[H]
 \caption{Line Search and update Weights}\label{alg:sgd_ls}
 \begin{algorithmic}[1]
 \Procedure{LineSearchAndTakeStep($w, \eta, \Delta x$)}{}
@@ -125,7 +123,7 @@ Der hier verwendete Stochastic Gradient ist eine Variante des in \cite{NowozinSt
 			\State Save $w_{best} = w$
 			\State Break for-loop
 		\EndIf
-		\State Memorize $\mathcal{L}$ and associated varried Weight Vector
+		\State Memorize $\mathcal{L}$ and associated varied Weight Vector
 	\EndFor
 	\State $w = w_{var}$, where regarding Loss is minimal
 	\State \Return $w$
@@ -133,6 +131,7 @@ Der hier verwendete Stochastic Gradient ist eine Variante des in \cite{NowozinSt
 \end{algorithmic}
 \end{algorithm}
 
+Für äquidistant gewählte Schrittweiten über 2 Größenordnungen wird jeweils der Mittelwert des Losses ermittelt und mit dem bisher besten Wert verglichen. Bei Erreichen eines neuen Tiefpunktes, wird direkt dorthin gesprungen, andernfalls wird die Schrittweite mit dem Niedrigsten erreichten Loss gewählt.
 
 
 

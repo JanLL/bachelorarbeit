@@ -6,13 +6,13 @@
 
 Zum einen wurden Experimente an kleinen synthetisch erzeugten Bildern durchgeführt um die prinzipiellen Vorteile von Variation of Information zu demonstrieren. 
 
-Zum Anderen diente für die umfassenderen Experimente zur praktischen Anwendung das Berkeley Segmentation Dataset (BSD500) \cite{BSD}, welches aus natürlichen Bildern besteht. Es wurden hiervon die Test-Bilder genommen, da hierfür State of the Art Kantendetektoren als Feature zur Verfügung standen.
+Zum Anderen diente für die umfassenderen Experimente zur praktischen Anwendung das Berkeley Segmentation Dataset (BSD-500) \cite{BSD}, welches aus natürlichen Bildern besteht. Es wurden hiervon die Test-Bilder genommen, da hierfür State of the Art Kantendetektoren als Feature zur Verfügung standen. Sowohl das Trainings- als auch das Testset bestand aus 100 Bildern.
 
 
 \section{Graphical Model Unterbau und Solver}
 
 
-Zur Generierung des Region Adjacency Graphs, des Random Forests und der Filter wurde VIGRA \cite{VIGRA} verwendet. Inferno \cite{Inferno} zum Zusammenführen aller Daten, Lösen des Multicut Problems und Lernen der Parameter sowohl mit SubGradient bezüglich Partition Hamming, als auch mit Stochastic Gradient bezüglich Variation of Information.
+Zur Generierung des Region Adjacency Graphs, des Random Forests und der Filter wurde VIGRA \cite{VIGRA} verwendet. Inferno \cite{Inferno} zum Zusammenführen aller Daten, Lösen des Multicut Problems und Lernen der Parameter sowohl mit SubGradient bezüglich Partition Hamming, als auch mit Stochastic Gradient bezüglich Variation of Information. Beide Bibliotheken basieren auf C++, welche allerdings über Python angesteuert werden können. Daher wurde das komplette Programm für diese Arbeit in Python realisiert.
 
 
 

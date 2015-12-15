@@ -14,7 +14,7 @@ import inferno
 import multicutAuxFunctions as maf
 
 
-resultsPath = 'results/151211_weightsIn[0,1]_ph_w\oRf_w\oConstr_voi_w\RF_w\ConstrOnRF_origGradDirSearch/'
+resultsPath = 'results/151214_M4/'
 
 if not os.path.exists(resultsPath):
     os.makedirs(resultsPath)
@@ -203,7 +203,7 @@ print "\nTime to built up Testing Feature Space:", t2-t1, "sec"
 
 
 ########################## Norm Feature Spaces to [-1, 1] ############################################
-'''
+
 print "Start to change Norm of Feature Spaces to [-1, 1]..."
 t1 = time.time()
 for n in range(len(trainingFeatureSpaces)):
@@ -221,7 +221,7 @@ for n in range(len(testFeatureSpaces)):
 t2 = time.time()
 
 print "Time to change norm on Feature Spaces: ", t2-t1
-'''
+
 
 
 
@@ -279,7 +279,7 @@ nFeatures = trainingFeatureSpaces[0].shape[1]
 
 
 ########################## Norm Feature Spaces to [-1, 1] (just RF Feature) ############################################
-'''
+
 print "Start to change Norm of Feature Spaces to [-1, 1]..."
 t1 = time.time()
 for n in range(len(trainingFeatureSpaces)):
@@ -298,7 +298,7 @@ t2 = time.time()
 
 print "Time to change norm on Feature Spaces: ", t2-t1
 
-'''
+
 
 ################## extend weight vector for random forest features ########################
 
@@ -324,9 +324,9 @@ for w in range(auxWeightVec.shape[0]):
 
 
 weightConstraints = inferno.learning.WeightConstraints(nFeatures)
-weightConstraints.addBound(featureNames.index('RF_Prob'), -1.01, -0.99)
+#weightConstraints.addBound(featureNames.index('RF_Prob'), -1.01, -0.99)
 
-StochGradParameter = dict(maxIterations=1, nPertubations=3, sigma=0.3, n=.1, seed=1) 
+StochGradParameter = dict(maxIterations=3, nPertubations=3, sigma=0.3, n=.1, seed=1) 
 weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, trainingGtLabels,
                                    loss='variationOfInformation', learnerParameter=StochGradParameter, 
                                    regularizerStr=1., weightConstraints=weightConstraints, start=weightVector)
