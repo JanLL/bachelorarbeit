@@ -14,7 +14,7 @@ import inferno
 import multicutAuxFunctions as maf
 
 
-resultsPath = 'results/151214_M4/'
+resultsPath = 'results/M9_151216_weightsIn[-1,1]_ph_w\oRF_voi_w\oRF_w\ConstrOnN4/'
 
 if not os.path.exists(resultsPath):
     os.makedirs(resultsPath)
@@ -262,7 +262,7 @@ for n in range(len(weightVector)):
 #    RF = vigra.learning.RandomForest(rfPath)
 #else:
 #    RF = maf.buildRandomForest(trainingFeatureSpaces, trainingGtSols, rfPath)
-
+'''
 print "Loading Random Forest..."
 RF = vigra.learning.RandomForest('featureSpaces/full/RF.hdf5')
 print "Get probabilities from Random Forest..."
@@ -275,11 +275,11 @@ testFeatureSpaces[:] = [np.concatenate((featureSpace, (prob[:,1]).reshape(prob.s
 
 featureNames.append('RF_Prob')
 nFeatures = trainingFeatureSpaces[0].shape[1]
-
+'''
 
 
 ########################## Norm Feature Spaces to [-1, 1] (just RF Feature) ############################################
-
+'''
 print "Start to change Norm of Feature Spaces to [-1, 1]..."
 t1 = time.time()
 for n in range(len(trainingFeatureSpaces)):
@@ -297,12 +297,12 @@ for n in range(len(testFeatureSpaces)):
 t2 = time.time()
 
 print "Time to change norm on Feature Spaces: ", t2-t1
-
+'''
 
 
 ################## extend weight vector for random forest features ########################
 
-
+'''
 auxWeightVec = np.zeros(len(weightVector))
 for w in range(len(weightVector)):
     auxWeightVec[w] = weightVector[w]
@@ -310,7 +310,7 @@ for w in range(len(weightVector)):
 weightVector = inferno.learning.WeightVector(nFeatures, 0.0)
 for w in range(auxWeightVec.shape[0]):
     weightVector[w] = auxWeightVec[w]
-
+'''
 
 
 ############################ Stochastic Gradient Learner (Variation of Information) ##########################
@@ -324,7 +324,8 @@ for w in range(auxWeightVec.shape[0]):
 
 
 weightConstraints = inferno.learning.WeightConstraints(nFeatures)
-#weightConstraints.addBound(featureNames.index('RF_Prob'), -1.01, -0.99)
+constrFeatureIndex = featureNames.index('N4')
+weightConstraints.addBound(constrFeatureIndex, weightVector[constrFeatureIndex]-0.01, weightVector[constrFeatureIndex]+0.01)
 
 StochGradParameter = dict(maxIterations=3, nPertubations=3, sigma=0.3, n=.1, seed=1) 
 weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, trainingGtLabels,
