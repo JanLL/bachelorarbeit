@@ -87,17 +87,17 @@ Der hier verwendete Stochastic Gradient ist eine Variante des in \cite{NowozinSt
 \begin{algorithm}
 \caption{Get Gradient Descent Direction}\label{alg:sg_dir}
 \begin{algorithmic}[1]
-\Procedure{GetGradientDescentDirection($nPerturbs, \sigma$, $w$)}{}
+\Procedure{GetGradientDescentDirection($\#Perturbs, \sigma$, $w$)}{}
 	\State $\sigma$: Noise standard deviation
 	\State $w$: Current Weight Wector
 	\State
 	\State $\Delta x = 0$
-	\For{$n=1 ... nPerturbs$}
+	\For{$n=1 ... \#Perturbs$}
 		\State Generate Noise $\in \mathcal{N}(0, \sigma^2)$ und add to $w$
 		\State Calculate Loss on current Training Sample
 		\State $\Delta x = \Delta x + Noise*Loss$
 	\EndFor
-	\State $\Delta x = -\Delta x / nPerturbs$
+	\State $\Delta x = -\Delta x / \#Perturbs$
 	\State \Return{$\Delta x$}
 \EndProcedure
 \end{algorithmic}
