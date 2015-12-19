@@ -3,28 +3,32 @@
 %*****************************************
 \section{Graphen Theorie}\label{sec:graphTheory}
 
-Die Grundlage aller weiteren Betrachtungen ist ein Region Adjacency Graph (RAG). Um diesen zu erstellen, wird das Bild zunächst mithilfe des SLIC-Algorithmus (Zitat!) in Superpixel unterteilt, dessen Ränder möglichst an den Objektkonturen verlaufen. Das Ergebnis hiervon ist in (Abb verlinken) abgebildet. 
+Die Grundlage aller weiteren Betrachtungen ist ein Region Adjacency Graph (RAG). Um diesen zu erstellen, wird das Bild zunächst mithilfe des SLIC-Algorithmus \cite{slic} in Superpixel unterteilt, dessen Ränder möglichst an den Objektkonturen verlaufen. Das Ergebnis hiervon ist in Abb. \ref{fig:slic-rag} abgebildet. 
 
 Der Region Adjacency Graph G baut sich aus Nodes V und Edges E auf. In unserem Fall entsprechen die Nodes den Superpixeln. Die Edges bestehen nur zwischen denjenigen Nodes, bei denen die zugehörigen Superpixel direkt angrenzen und somit eine gemeinsame Kante besitzen. 
 
-(hier SLIC-partition Bild und RAG-Bild einfügen)
+\begin{figure}[H]
+	{\includegraphics[width=.9\linewidth]{gfx/slic.png}}
+\end{figure}
+\captionof{figure}{Beispiel einer Superpixel Partitionierung mittels Slic}
+\label{fig:slic-rag}
+
+\vspace{0.5cm}
 
 
-
-
-Bei der letztlichen Segmentierung geht es darum, ein konsistentes Labeling der Superpixel zu erreichen. Dies wird über die Aktivität der Edges erreicht, welche an- oder ausgeschaltet sein können. Für die Aktivität einer Edge $y$ gilt somit: $y \in \{\text{0, 1}\}$ \\
+Bei der Segmentierung geht es darum, ein konsistentes Labeling der Superpixel zu erreichen. Dies wird über die Aktivität der Edges erreicht, welche an- oder ausgeschaltet sein können. Für die Aktivität einer Edge $y$ gilt somit: $y \in \{\text{0, 1}\}$, wobei $1$ aktiv und 0 inaktiv bedeutet \\
 Konsistent ist eine Segmentierung genau dann, wenn bei aktiven Edges die zugehörigen Superpixel verschiedene Labels haben und analog bei inaktiven Edges die Superpixel die gleichen Labels. Anschaulich gesehen ist dies der Fall, wenn alle aktiven Edges geschlossene Linien bilden.
 
 
 \section{Feature Space}\label{sec:featureSpace}
 
-Der Feature Space $X \in \mathbb{R}^{|E|xD}$ ordnet jeder Edge D Features zu, die möglichst in Korrelation zur Frage stehen, ob die betrachtete Edge nun aktiv oder inaktiv sein soll. 
+Der Feature Space $X \in \mathbb{R}^{|E|xD}$ ordnet jeder Edge D Features zu, die möglichst in Korrelation zur Frage stehen, ob die betrachtete Edge nun aktiv oder inaktiv sein soll. Zu den in dieser Arbeit verwendeten Feature wird in \ref{sec:exp_featureSpace} genauer eingegangen.
 
 
 
 \section{Das Multicut Problem}\label{sec:multicutProb}
 
-Anhand dieser gewichteten Edges eine konsistente Segmentierung zu erhalten wird als Multicut Problem (MP) bezeichnet. Es wird durch folgendes Minimierungsproblem beschrieben: 
+Anhand dieser, durch den Feature Space, gewichteten Edges eine konsistente Segmentierung zu erhalten wird als Multicut Problem (MP) bezeichnet. Es wird durch folgendes Minimierungsproblem beschrieben: 
 
 
 \begin{equation} 
@@ -34,13 +38,13 @@ Anhand dieser gewichteten Edges eine konsistente Segmentierung zu erhalten wird 
 \end{array}
 \end{equation}
 
-Hierbei entspricht $w \in \mathbb{R}^D$ den Weights und $\beta_e \in \mathbb{R}^D$ den Funktionswerten der D extrahierten Informationen des Feature Spaces. Die Nebenbedingungen erzwingen die Konsistenz der Segmentierung. $P(y)$ ist hierbei der kürzeste Pfad über inaktive Edges der beiden Superpixel, die benachbart zu $y$ sind. In der Praxis wird das Minimierungsproblem zunächst ohne Constraints gelöst und anschließend solange für Edges hinzugefügt, die die Konsistenzbedingung verletzen, bis Konsistenz erreicht ist.
+Hierbei entspricht $w \in \mathbb{R}^D$ den Weights der einzelnen Feature und $\beta_e \in \mathbb{R}^D$ den Funktionswerten der D extrahierten Informationen des Feature Spaces. Die Nebenbedingungen erzwingen die Konsistenz der Segmentierung. $P(y)$ ist hierbei der kürzeste Pfad über inaktive Edges der beiden Superpixel, die benachbart zu $y$ sind. In der Praxis wird das Minimierungsproblem zunächst ohne Constraints gelöst und anschließend solange für diejenigen Edges hinzugefügt, die die Konsistenzbedingung verletzen, bis Konsistenz erreicht ist.
 
 \section{Loss Funktionen}
 
-Mithilfe einer Loss Funktion $\mathcal{L}(y, y^*)$ wird quantifiziert, wie gut eine Segmentierung $y$ mit derjenigen der Ground Truth $y^*$ übereinstimmt. In dieser Arbeit wird die neue Methode "Variation of Information" vorgestellt und mit der bestehenden "Partition Hamming" verglichen.
+Mithilfe einer Loss Funktion $\mathcal{L}(y, y^*)$ wird quantifiziert, wie gut eine Segmentierung $y$ mit derjenigen der Ground Truth $y^*$ übereinstimmt. In dieser Arbeit wird die Methode Variation of Information vorgestellt und mit der bestehenden des Hamming Loss verglichen.
 
-\subsection{Partition Hamming}
+\subsection{Hamming Loss}
 
 \begin{equation}
 \mathcal{L}(y_i, y_i^*) = \left\{ \begin{array}{lcc}  
@@ -54,7 +58,7 @@ Mithilfe einer Loss Funktion $\mathcal{L}(y, y^*)$ wird quantifiziert, wie gut e
 \end{equation}
 
 
-Es werden direkt die Edges der Segmentierung $y$ und der Ground Truth $y^*$ verglichen und bei fehlender Übereinstimmung erhöht sich der Loss. Meist ist $\alpha_{under} > \alpha_{over}$ um Übersegmentierung zu bevorzugen, da es tragischer ist Objekte nicht zu erfassen.
+Es werden direkt die Edges der Segmentierung $y$ und der Ground Truth $y^*$ verglichen und bei fehlender Übereinstimmung erhöht sich der Loss. Meist ist $\alpha_{under} > \alpha_{over}$ um Übersegmentierung zu bevorzugen, da es tragischer ist Objekte nicht zu erfassen, als sie in mehreren Teilen vorzufinden. 
 
 \subsection{Variation of Information}\label{sec:voi}
 
@@ -68,7 +72,7 @@ Es werden also die Labels der Superpixel untersucht und bei fehlender Übereinst
 
 \section{Structured Learning}\label{sec:strucLearn}
 
-Um später mithilfe des Multicut Algorithmus Bilder möglichst gut segmentieren zu können, muss der Parameter $w$ bestimmt werden. "Möglichst gut" bedeutet hier in Bezug auf eine Loss Funktion, die als Qualitätskriterium dient. Da ein niedriger Loss für eine gute Segmentierung steht ist also das folgende Minimierungsproblem zu lösen:
+Um später mithilfe des Multicut Algorithmus Bilder optimal segmentieren zu können, muss der Parameter $w$ bestimmt werden. "Optimal" bedeutet hier in Bezug auf eine Loss Funktion, die als Qualitätskriterium dient. Da ein niedriger Loss für eine gute Segmentierung steht ist also das folgende Minimierungsproblem zu lösen:
 
 \begin{equation}
 \hat{w} = arg\min_{w} \mathcal{L}(y, y^*)
@@ -84,7 +88,7 @@ Die Minimierung des Partition Hamming Losses in dieser Arbeit wird hiermit reali
 
 Der hier verwendete Stochastic Gradient ist eine Variante des in \cite{NowozinStrucLearn11} näher erläuterten Algorithmus. Im folgenden wird die hier angewandte Methode zur Ermittlung der Gradientenrichtung (Alg. \ref{alg:sg_dir}), sowie der Liniensuche (Alg. \ref{alg:sgd_ls}), also der Schrittweite pro Iterationsschritt beschrieben: \\
 
-\begin{algorithm}
+\begin{algorithm}[H]
 \caption{Get Gradient Descent Direction}\label{alg:sg_dir}
 \begin{algorithmic}[1]
 \Procedure{GetGradientDescentDirection($\#Perturbs, \sigma$, $w$)}{}
@@ -103,7 +107,9 @@ Der hier verwendete Stochastic Gradient ist eine Variante des in \cite{NowozinSt
 \end{algorithmic}
 \end{algorithm}
 
-Um die Gradientenrichtung zu bestimmen wird also zunächst in nPerturbs verschiedene normalverteilte Richtungen, vom momentanen Weight Vector aus, der Loss auf dem aktuellen Bild berechnet. Anschließend werden die einzelnen Richtungen nach ihrem Loss gewichtet, wodurch man eine Richtung starken Anstieges ermittelt hat. Daher ist am Ende noch ein Vorzeichenwechsel nötig.
+Um die Gradientenrichtung zu bestimmen wird zunächst in \#Perturbs verschiedene normalverteilte Richtungen, vom momentanen Weight Vector aus, der Loss auf dem aktuellen Bild berechnet. Anschließend werden die einzelnen Richtungen nach ihrem Loss gewichtet, wodurch man eine Richtung starken Anstieges ermittelt hat. Daher ist am Ende noch ein Vorzeichenwechsel nötig.
+
+\vspace{1cm}
 
 
 \begin{algorithm}[H]
@@ -131,7 +137,7 @@ Um die Gradientenrichtung zu bestimmen wird also zunächst in nPerturbs verschie
 \end{algorithmic}
 \end{algorithm}
 
-Für äquidistant gewählte Schrittweiten über 2 Größenordnungen wird jeweils der Mittelwert des Losses ermittelt und mit dem bisher besten Wert verglichen. Bei Erreichen eines neuen Tiefpunktes, wird direkt dorthin gesprungen, andernfalls wird die Schrittweite mit dem Niedrigsten erreichten Loss gewählt.
+Für äquidistant gewählte Schrittweiten über 2 Größenordnungen wird jeweils der Mittelwert des Losses auf dem gesamten Trainingsset ermittelt und mit dem bisher besten Wert verglichen. Bei Erreichen eines neuen Tiefpunktes, wird direkt dorthin gesprungen, andernfalls wird die Schrittweite mit dem Niedrigsten erreichten Loss gewählt.
 
 
 

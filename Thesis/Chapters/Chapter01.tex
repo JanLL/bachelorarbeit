@@ -16,17 +16,21 @@ Das weite Forschungsfeld der Bildsegmentierung handelt von der Problemstellung, 
 	\subfloat[Segmentierung des Beispielbildes (hier Ground Truth)]
 	{\includegraphics[width=.45\linewidth]{gfx/80090_gtg.png}}
 \end{figure}
+\vspace{-0.5cm}
+\captionof{figure}{Beispielbild mit idealer Segmentierung, die es gilt zu erhalten}
+
+\vspace{0.8cm}
 
 
 Dieser Prozess soll Lern-basiert sein, d.h. es werden dem Algorithmus Trainingsdaten mit Beispielbildern inklusive Soll-Segmentierung (Ground Truth) übergeben. Anhand dieser werden Parameter optimiert um möglichst allgemeingültig, den Trainingsdaten ähnliche Bilder ebenso in einzelne Segmente gliedern zu können.
 
-In dieser Arbeit wird nun die neue Methode Variation of Information zur Quantifizierung der Qualität einer Segmentierung vorgestellt und mit einer bestehenden (Partition Hamming) verglichen. Da der Lern-Algorithmus auf diesem Kriterium aufbaut, ist dies elementar für die Güte der resultierenden Segmentierung.
+In dieser Arbeit wird nun die Loss-Funktion Variation of Information (VOI) zur Quantifizierung der Qualität einer Segmentierung vorgestellt und mit einer bestehenden (Hamming Loss) verglichen. Da der Lern-Algorithmus auf diesem Kriterium aufbaut, ist dies elementar für die Güte der resultierenden Segmentierung.
 
 \section{Motivation Variation of Information}
 
-Bisher wird bei Partition Hamming jede einzelne Kante der Segmentierung überprüft, ob diese in der Ground Truth ebenso vorhanden ist oder nicht. Bei einer leicht verschobenen Segmentierung (siehe Bild) führt dies zu einem extrem hohen Loss, obwohl die Segmentierung nicht viel schlechter ist als die der Ground Truth. Dieser Fall kann beispielsweise eintreten wenn der Ground Truth Ersteller unsauber gearbeitet hat, was durchaus vorkommen kann wenn man davon etliche erstellt. Außerdem ist es oft Interpretationssache, wo nun genau eine Kante eines Objektes verläuft, wenn sich der zugehörige Gradient des Bildes über eine gewisse Fläche streckt. 
+Bisher wird beim Hamming Loss jede einzelne Kante der Segmentierung überprüft, ob diese in der Ground Truth ebenso vorhanden ist oder nicht. Bei einer leicht verschobenen Segmentierung (siehe Bild) führt dies zu einem extrem hohen Loss, obwohl die Segmentierung nicht viel schlechter ist als die der Ground Truth. Dieser Fall kann beispielsweise eintreten wenn der Ground Truth Ersteller unsauber gearbeitet hat, was durchaus vorkommen kann wenn man davon etliche erstellt. Außerdem ist es oft Interpretationssache, wo nun genau eine Kante eines Objektes verläuft, wenn sich der zugehörige Gradient des Bildes über eine gewisse Fläche streckt. 
 
-Mit Variation of Information wird nun versucht, diese Nachteile zu beseitigen. Man betrachtet hierbei nicht mehr den Zustand jeder einzelnen Kante, ob diese nun an oder aus ist, sondern  die einzelnen segmentierten Flächen. Die exakte mathematische Berechnung folgt in den theoretischen Grundlagen (\ref{sec:voi}), anschaulich gesehen werden allerdings nur die Flächen bestraft, die ein unterschiedliches Label als die Ground Truth haben.
+Mittels Variation of Information sollen nun diese Nachteile beseitigt werden. Man betrachtet hierbei nicht mehr den Zustand jeder einzelnen Kante, ob diese nun an oder aus ist, sondern  die einzelnen segmentierten Flächen. Die exakte mathematische Berechnung folgt in den theoretischen Grundlagen (\ref{sec:voi}), anschaulich gesehen werden allerdings nur die Flächen bestraft, die ein unterschiedliches Label als die Ground Truth haben.
 
 Bild veranschaulicht dies nun...
 

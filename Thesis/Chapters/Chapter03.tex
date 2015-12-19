@@ -4,26 +4,27 @@
 
 \section{Trainings- und Testdaten}
 
-Zum einen wurden Experimente an kleinen synthetisch erzeugten Bildern durchgeführt um die prinzipiellen Vorteile von Variation of Information zu demonstrieren. \textcolor{red}{... ?!?!}
 
-Zum Anderen diente für die umfassenderen Experimente zur praktischen Anwendung das Berkeley Segmentation Dataset (BSD-500) \cite{BSD}, welches aus natürlichen Bildern besteht. Es wurden hiervon die Test-Bilder genommen, da hierfür State of the Art Kantendetektoren als Feature zur Verfügung standen. Sowohl das Trainings- als auch das Testset bestand aus 100 Bildern.
+Die Trainings- und Testbilder stammten vom Berkeley Segmentation Dataset (BSD-500) \cite{BSD}, welches aus natürlichen Bildern besteht. Der Datensatz ist gegliedert in einen Trainings- Test- und Validierungsbereich, wobei die Test-Bilder genommen wurden, da hierfür State of the Art Kantendetektoren als Feature zur Verfügung standen. Sowohl unser Trainings- als auch das Testset bestand schließlich aus 100 Bildern. \\
+
+Die Ground Truth der verwendeten Bilder stammen ebenfalls aus dem BSD-500 Datensatz und lagen in Form eines Pixel-Labelings vor, d.h. jedem Pixel ist eine Zahl zugeordnet, zu welchem Segment es gehört. Letztendlich will man allerdings das Labeling der zuvor berechneten Superpixel haben. Hierzu wird durch alle Superpixel iteriert und jeweils die Anzahl der Label auf Pixelebene gezählt. Dem Superpixel wird nun dasjenige Label zugeordnet, welches am häufigsten auf Pixelebene vorkommt (Majority Vote).
 
 
 \section{Graphical Model Unterbau und Solver}
 
 
-Zur Generierung des Region Adjacency Graphs, des Random Forests und der Filter wurde VIGRA \cite{VIGRA} verwendet. Inferno \cite{Inferno} zum Zusammenführen aller Daten, Lösen des Multicut Problems und Lernen der Parameter sowohl mit SubGradient bezüglich Partition Hamming, als auch mit Stochastic Gradient bezüglich Variation of Information. Beide Bibliotheken basieren auf C++, welche allerdings über Python angesteuert werden können. Daher wurde das komplette Programm für diese Arbeit in Python realisiert.
+Zur Generierung des Region Adjacency Graphs, des Random Forests und der Filter wurde VIGRA \cite{VIGRA}, eine Bibliothek zur Bildanalyse- und Bearbeitung, verwendet. Inferno \cite{Inferno} fand Anwendung beim Zusammenführen aller Daten, Lösen des Multicut Problems und Lernen der Parameter sowohl mit SubGradient bezüglich Hamming Loss, als auch mit Stochastic Gradient bezüglich Variation of Information. Beide Bibliotheken basieren auf C++, welche allerdings über Python angesteuert werden können. Daher wurde das komplette Programm für diese Arbeit in Python realisiert.
 
 
 
-\section{Feature Space}
+\section{Feature Space}\label{sec:exp_featureSpace}
 
-Für die synthetischen Daten wurden folgende Feature gewählt:
-\begin{itemize}
-	\item Gaussian Gradient Magnitude mit $\sigma=1$
-	\item Hessian of Gaussian Eigenvalues mit $\sigma=1$
-	\item Structure Tensor Eigenvalues
-\end{itemize}
+%Für die synthetischen Daten wurden folgende Feature gewählt:
+%\begin{itemize}
+%	\item Gaussian Gradient Magnitude mit $\sigma=1$
+%	\item Hessian of Gaussian Eigenvalues mit $\sigma=1$
+%	\item Structure Tensor Eigenvalues
+%\end{itemize}
 
 Beim BSD hat sich der Feature Space folgendermaßen zusammengesetzt:
 
@@ -33,8 +34,8 @@ Beim BSD hat sich der Feature Space folgendermaßen zusammengesetzt:
 	\item Laplacian of Gaussian
 	\item Structure Tensor Eigenvalues
 	\item Canny Filter
-	\item $N^4$-Fields Kantendetektor \cite{n4}
-	\item Structured Forests Kantendetektor \cite[Dollár et al.]{dollar}
+	\item $N^4$-Fields Kantendetektor \cite{n4} mit und ohne Gewichtung auf Länge der Edge
+	\item Structured Forests Kantendetektor \cite[Dollár et al.]{dollar} mit und ohne Gewichtung auf Länge der Edge
 	\item Statistische Kenndaten in variablen Bereichen $\bar{u}$ und $\bar{v}$ um eine Edge an Superpixeln u und v \\
 	(seperat angewandt auf alle 3 Farbkanäle des eigentlichen Bildes, als auch auf den $N^4$-Fields- und Dollár-Kantendetektor)
 	\begin{itemize}
@@ -48,7 +49,7 @@ Beim BSD hat sich der Feature Space folgendermaßen zusammengesetzt:
 	\item Konstantes Feature für jede Edge, zur Beseitigung des Bias im Feature Space
 \end{itemize}
 
-Zusätzlich wurde aus den Feature Spaces aller Trainingsdaten ein Random Forest (RF) aufgebaut und dieser zur Generierung eines weiteren Features verwendet.
+Zusätzlich wurde aus den Feature Spaces aller Trainingsdaten ein Random Forest aufgebaut und dieser zur Generierung eines Weiteren (RF Feature) verwendet.
 
 
 
