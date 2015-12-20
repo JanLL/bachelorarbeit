@@ -7,11 +7,11 @@
 \contentsline {section}{\numberline {1.1}Motivation Variation of Information}{1}{section.1.1}
 \contentsline {chapter}{\numberline {2}\spacedlowsmallcaps {Theoretische Grundladen}}{3}{chapter.2}
 \contentsline {section}{\numberline {2.1}Graphen Theorie}{3}{section.2.1}
-\contentsline {section}{\numberline {2.2}Feature Space}{4}{section.2.2}
+\contentsline {section}{\numberline {2.2}Feature Space}{3}{section.2.2}
 \contentsline {section}{\numberline {2.3}Das Multicut Problem}{4}{section.2.3}
 \contentsline {section}{\numberline {2.4}Loss Funktionen}{4}{section.2.4}
 \contentsline {subsection}{\numberline {2.4.1}Hamming Loss}{4}{subsection.2.4.1}
-\contentsline {subsection}{\numberline {2.4.2}Variation of Information}{5}{subsection.2.4.2}
+\contentsline {subsection}{\numberline {2.4.2}Variation of Information}{4}{subsection.2.4.2}
 \contentsline {section}{\numberline {2.5}Structured Learning}{5}{section.2.5}
 \contentsline {subsection}{\numberline {2.5.1}Subgradient Descent}{5}{subsection.2.5.1}
 \contentsline {subsection}{\numberline {2.5.2}Stochastic Gradient}{5}{subsection.2.5.2}
@@ -22,7 +22,7 @@
 \contentsline {chapter}{\numberline {4}\spacedlowsmallcaps {Experimente und Resultate}}{9}{chapter.4}
 \contentsline {section}{\numberline {4.1}Stochastic Gradient mit RF Feature}{9}{section.4.1}
 \contentsline {section}{\numberline {4.2}Stochastic Gradient ohne RF Feature}{17}{section.4.2}
-\contentsline {chapter}{\numberline {5}\spacedlowsmallcaps {Diskussion}}{21}{chapter.5}
+\contentsline {chapter}{\numberline {5}\spacedlowsmallcaps {Fazit}}{21}{chapter.5}
 \contentsline {part}{\numberline {i}\spacedlowsmallcaps {Appendix}}{23}{part.1}
 \contentsline {chapter}{\numberline {A}\spacedlowsmallcaps {Appendix Test}}{25}{appendix.A}
 \vspace {\beforebibskip }
