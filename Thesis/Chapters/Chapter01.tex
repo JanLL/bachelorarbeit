@@ -32,5 +32,21 @@ Bisher wird beim Hamming Loss jede einzelne Kante der Segmentierung überprüft,
 
 Mittels Variation of Information sollen nun diese Nachteile beseitigt werden. Man betrachtet hierbei nicht mehr den Zustand jeder einzelnen Kante, ob diese nun an oder aus ist, sondern  die einzelnen segmentierten Flächen. Die exakte mathematische Berechnung folgt in den theoretischen Grundlagen (\ref{sec:voi}), anschaulich gesehen werden allerdings nur die Flächen bestraft, die ein unterschiedliches Label als die Ground Truth haben.
 
-Bild veranschaulicht dies nun...
+Bild \ref{fig:motivation} a) veranschaulicht dies nun: Der schwarze Bereich entspricht der zu segmentierenden Struktur und die rote Linie wäre die dazugehörige Ground Truth. Beim Hamming Loss wären sowohl die äußeren Kanten der schwarzen Struktur, als auch die Kanten der roten Linie nicht korrekt, was einen hohen Loss zur Folge hätte. Bei Variation of Information hingegen wird die rosa Fläche als Loss gezählt und ist infolgedessen deutlich geringer da die Segmentierung fast der Ground Truth entspricht.
+
+Bei b) ist ein Beispiel solch eines natürlichen Bildes dargestellt, wo es absolut nicht eindeutig ist, wo genau die Ground Truth jetzt zu zeichnen ist.
+
+
+\begin{figure}[H]
+	\centering
+	\subfloat[Demonstration Loss Variation of Information]
+	{\includegraphics[width=.45\linewidth]{gfx/motivation.png}}
+	\hfill
+	\subfloat[Beispielbild mit unklarer Ground Truth]
+	{\includegraphics[width=.45\linewidth]{gfx/159022.jpg}}
+\end{figure}
+\vspace{-0.5cm}
+\captionof{figure}{Beispielbild mit idealer Segmentierung, die es gilt zu erhalten}
+\label{fig:motivation}
+
 
