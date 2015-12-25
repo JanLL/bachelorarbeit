@@ -14,7 +14,7 @@ import inferno
 import multicutAuxFunctions as maf
 
 
-resultsPath = 'results/M12_151217_weightsIn[0,1]_ph_w\oRF_voi_w\oRF_w\oConstrOnN4/'
+resultsPath = 'results/M10_crossValidation/5/'
 
 if not os.path.exists(resultsPath):
     os.makedirs(resultsPath)
@@ -23,9 +23,13 @@ if not os.path.exists(resultsPath):
     os.makedirs(resultsPath + 'partitionHamming/segmentedImages')
     os.makedirs(resultsPath + 'VOI/segmentedImages')
 
+
+trainSetPath = 'crossValidationSets/5/trainingSet/'
+testSetPath = 'crossValidationSets/5/testSet/'
+
+
 ################################### Training Data ########################################
 
-trainSetPath = 'trainingSet/'
 #trainSetPath = 'fewImages/'
 
 
@@ -117,7 +121,6 @@ print "\nTime to built up Training Feature Space:", t2-t1, "sec"
 
 ############################################# Testing Data #################################################
 
-testSetPath = 'testSet/'
 #testSetPath = 'fewImages/'
 
 path = os.walk(testSetPath)
@@ -203,7 +206,7 @@ print "\nTime to built up Testing Feature Space:", t2-t1, "sec"
 
 
 ########################## Norm Feature Spaces to [-1, 1] ############################################
-'''
+
 print "Start to change Norm of Feature Spaces to [-1, 1]..."
 t1 = time.time()
 for n in range(len(trainingFeatureSpaces)):
@@ -221,14 +224,14 @@ for n in range(len(testFeatureSpaces)):
 t2 = time.time()
 
 print "Time to change norm on Feature Spaces: ", t2-t1
-'''
+
 
 
 
 
 ########################## Subgradient Learner (partitionHamming) ########################################
 
-'''
+
 weightConstraints = inferno.learning.WeightConstraints(nFeatures)
 #weightConstraints.addBound(1, -1.01, -0.99)
 
@@ -252,7 +255,7 @@ auxWeightVector = np.load(resultsPath + 'partitionHamming/weights.npy')
 weightVector = inferno.learning.WeightVector(auxWeightVector.shape[0], 0.0)
 for n in range(len(weightVector)):
     weightVector[n] = auxWeightVector[n]
-
+'''
 
 ########################## Add Random Forest Feature ###################################
 
@@ -327,7 +330,7 @@ weightConstraints = inferno.learning.WeightConstraints(nFeatures)
 #constrFeatureIndex = featureNames.index('N4')
 #weightConstraints.addBound(constrFeatureIndex, weightVector[constrFeatureIndex]-0.01, weightVector[constrFeatureIndex]+0.01)
 
-StochGradParameter = dict(maxIterations=4, nPertubations=6, sigma=0.3, n=0.1, seed=1) 
+StochGradParameter = dict(maxIterations=3, nPertubations=6, sigma=0.3, n=0.1, seed=1) 
 weightVector = maf.performLearning(trainingFeatureSpaces, trainingRags, trainingEdges, trainingGtLabels,
                                    loss='variationOfInformation', learnerParameter=StochGradParameter, 
                                    regularizerStr=1., weightConstraints=weightConstraints, start=weightVector)

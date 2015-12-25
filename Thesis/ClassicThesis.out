@@ -21,8 +21,7 @@
 \BOOKMARK [0][]{chapter.4}{4 Experimente und Resultate}{}% 21
 \BOOKMARK [1][-]{section.4.1}{4.1 Stochastic Gradient mit RF Feature}{chapter.4}% 22
 \BOOKMARK [1][-]{section.4.2}{4.2 Stochastic Gradient ohne RF Feature}{chapter.4}% 23
-\BOOKMARK [0][]{chapter.5}{5 Fazit}{}% 24
-\BOOKMARK [-1][]{part.1}{Appendix}{}% 25
-\BOOKMARK [0][]{appendix.A}{A Appendix Test}{part.1}% 26
-\BOOKMARK [0][]{dummy.2}{Literaturverzeichnis}{part.1}% 27
-\BOOKMARK [0][]{declaration.0}{Declaration}{part.1}% 28
+\BOOKMARK [1][-]{section.4.3}{4.3 Kreuzvalidierung Messung 10}{chapter.4}% 24
+\BOOKMARK [0][]{chapter.5}{5 Fazit}{}% 25
+\BOOKMARK [0][]{dummy.2}{Literaturverzeichnis}{}% 26
+\BOOKMARK [0][]{declaration.0}{Declaration}{}% 27
