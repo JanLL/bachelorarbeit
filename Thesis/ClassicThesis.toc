@@ -4,7 +4,7 @@
 \select@language {ngerman}
 \select@language {ngerman}
 \contentsline {chapter}{\numberline {1}\spacedlowsmallcaps {Einleitung}}{1}{chapter.1}
-\contentsline {section}{\numberline {1.1}Motivation Variation of Information}{1}{section.1.1}
+\contentsline {section}{\numberline {1.1}Motivation Variation of Information}{2}{section.1.1}
 \contentsline {chapter}{\numberline {2}\spacedlowsmallcaps {Theoretische Grundladen}}{3}{chapter.2}
 \contentsline {section}{\numberline {2.1}Graphen Theorie}{3}{section.2.1}
 \contentsline {section}{\numberline {2.2}Feature Space}{3}{section.2.2}
@@ -19,10 +19,10 @@
 \contentsline {section}{\numberline {3.1}Trainings- und Testdaten}{7}{section.3.1}
 \contentsline {section}{\numberline {3.2}Graphical Model Unterbau und Solver}{7}{section.3.2}
 \contentsline {section}{\numberline {3.3}Feature Space}{7}{section.3.3}
-\contentsline {chapter}{\numberline {4}\spacedlowsmallcaps {Experimente und Resultate}}{9}{chapter.4}
-\contentsline {section}{\numberline {4.1}Stochastic Gradient mit RF Feature}{9}{section.4.1}
-\contentsline {section}{\numberline {4.2}Stochastic Gradient ohne RF Feature}{17}{section.4.2}
-\contentsline {section}{\numberline {4.3}Kreuzvalidierung Messung 10}{21}{section.4.3}
-\contentsline {chapter}{\numberline {5}\spacedlowsmallcaps {Fazit}}{23}{chapter.5}
+\contentsline {chapter}{\numberline {4}\spacedlowsmallcaps {Experimente und Resultate}}{11}{chapter.4}
+\contentsline {section}{\numberline {4.1}Stochastic Gradient mit RF Feature}{11}{section.4.1}
+\contentsline {section}{\numberline {4.2}Stochastic Gradient ohne RF Feature}{19}{section.4.2}
+\contentsline {section}{\numberline {4.3}Kreuzvalidierung Messung 10}{23}{section.4.3}
+\contentsline {chapter}{\numberline {5}\spacedlowsmallcaps {Fazit}}{25}{chapter.5}
 \vspace {\beforebibskip }
-\contentsline {chapter}{\spacedlowsmallcaps {Literaturverzeichnis}}{25}{dummy.2}
+\contentsline {chapter}{\spacedlowsmallcaps {Literaturverzeichnis}}{27}{dummy.2}

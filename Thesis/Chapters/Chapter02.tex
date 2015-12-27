@@ -5,7 +5,7 @@
 
 Die Grundlage aller weiteren Betrachtungen ist ein Region Adjacency Graph (RAG). Um diesen zu erstellen, wird das Bild zunächst mithilfe des SLIC-Algorithmus \cite{slic} in Superpixel unterteilt, dessen Ränder möglichst an den Objektkonturen verlaufen. 
 
-Der Region Adjacency Graph G baut sich aus Nodes V und Edges E auf. In unserem Fall entsprechen die Nodes den Superpixeln. Die Edges bestehen nur zwischen denjenigen Nodes, bei denen die zugehörigen Superpixel direkt angrenzen und somit eine gemeinsame Kante besitzen. 
+Der Region Adjacency Graph G baut sich aus Knoten V und Kanten E auf. In unserem Fall entsprechen die Nodes den Superpixeln. Die Kanten bestehen nur zwischen denjenigen Nodes, bei denen die zugehörigen Superpixel direkt angrenzen und somit eine gemeinsame Kante besitzen. 
 
 Sowohl die resultierende Superpixel-Partitionierung mittels SLIC, als auch eine Demonstration, wie daraus der Region Adjacency Graph entsteht, sind in Abb. \ref{fig:slic-rag} dargestellt.
 
@@ -15,7 +15,7 @@ Sowohl die resultierende Superpixel-Partitionierung mittels SLIC, als auch eine 
 	\subfloat[SLIC Superpixels]
 	{\includegraphics[width=.49\linewidth]{gfx/slic.png}}
 	\hfill
-	\subfloat[Region Adjacency Graph aus Superpixels, Nodes: grüne Punkte, Edges: blaue Linien]
+	\subfloat[Region Adjacency Graph aus Superpixels, Knoten: grüne Punkte, Kanten: blaue Linien]
 	{\includegraphics[width=.49\linewidth]{gfx/rag.png}}
 \end{figure}
 \captionof{figure}{Beispiel einer Superpixel Partitionierung mittels SLIC}
@@ -24,19 +24,19 @@ Sowohl die resultierende Superpixel-Partitionierung mittels SLIC, als auch eine 
 \vspace{0.5cm}
 
 
-Bei der Segmentierung geht es darum, ein konsistentes Labeling der Superpixel zu erreichen. Dies wird über die Aktivität der Edges erreicht, welche an- oder ausgeschaltet sein können. Für die Aktivität einer Edge $y$ gilt somit: $y \in \{\text{0, 1}\}$, wobei $1$ aktiv und 0 inaktiv bedeutet \\
-Konsistent ist eine Segmentierung genau dann, wenn bei aktiven Edges die zugehörigen Superpixel verschiedene Labels haben und analog bei inaktiven Edges die Superpixel die gleichen Labels. Anschaulich gesehen ist dies der Fall, wenn alle aktiven Edges geschlossene Linien bilden.
+Bei der Segmentierung geht es darum, ein konsistentes Labeling der Superpixel zu erreichen. Dies wird über die Aktivität der Kanten erreicht, welche an- oder ausgeschaltet sein können. Für die Aktivität einer Kante $y$ gilt somit: $y \in \{\text{0, 1}\}$, wobei $1$ aktiv und 0 inaktiv bedeutet \\
+Konsistent ist eine Segmentierung genau dann, wenn bei aktiven Kanten die zugehörigen Superpixel verschiedene Labels haben und analog bei inaktiven Kanten die Superpixel die gleichen Labels. Anschaulich gesehen ist dies der Fall, wenn alle aktiven Kanten geschlossene Linien bilden.
 
 
 \section{Feature Space}\label{sec:featureSpace}
 
-Der Feature Space $X \in \mathbb{R}^{|E|xD}$ ordnet jeder Edge D Features zu, die möglichst in Korrelation zur Frage stehen, ob die betrachtete Edge nun aktiv oder inaktiv sein soll. Zu den in dieser Arbeit verwendeten Feature wird in \ref{sec:exp_featureSpace} genauer eingegangen.
+Der Feature Space $X \in \mathbb{R}^{|E|xD}$ ordnet jeder Kante D Features zu, die möglichst in Korrelation zur Frage stehen, ob die betrachtete Kante nun aktiv oder inaktiv sein soll. Zu den in dieser Arbeit verwendeten Feature wird in \ref{sec:exp_featureSpace} genauer eingegangen.
 
 
 
 \section{Das Multicut Problem}\label{sec:multicutProb}
 
-Anhand dieser, durch den Feature Space, gewichteten Edges eine konsistente Segmentierung zu erhalten wird als Multicut Problem (MP) bezeichnet. Es wird durch folgendes Minimierungsproblem beschrieben: 
+Anhand dieser, durch den Feature Space, gewichteten Kante eine konsistente Segmentierung zu erhalten wird als Multicut Problem (MP) bezeichnet. Es wird durch folgendes Minimierungsproblem beschrieben: 
 
 
 \begin{equation} 
@@ -46,7 +46,7 @@ Anhand dieser, durch den Feature Space, gewichteten Edges eine konsistente Segme
 \end{array}
 \end{equation}
 
-Hierbei entspricht $w \in \mathbb{R}^D$ den Weights der einzelnen Feature und $\beta_e \in \mathbb{R}^D$ den Funktionswerten der D extrahierten Informationen des Feature Spaces. Die Nebenbedingungen erzwingen die Konsistenz der Segmentierung. $P(y)$ ist hierbei der kürzeste Pfad über inaktive Edges der beiden Superpixel, die benachbart zu $y$ sind. In der Praxis wird das Minimierungsproblem zunächst ohne Constraints gelöst und anschließend solange für diejenigen Edges hinzugefügt, die die Konsistenzbedingung verletzen, bis Konsistenz erreicht ist.
+Hierbei entspricht $w \in \mathbb{R}^D$ den Weights der einzelnen Feature und $\beta_e \in \mathbb{R}^D$ den Funktionswerten der D extrahierten Informationen des Feature Spaces. Die Nebenbedingungen erzwingen die Konsistenz der Segmentierung. $P(y)$ ist hierbei der kürzeste Pfad über inaktive Kanten der beiden Superpixel, die benachbart zu $y$ sind. In der Praxis wird das Minimierungsproblem zunächst ohne Constraints gelöst und anschließend solange für diejenigen Kanten hinzugefügt, die die Konsistenzbedingung verletzen, bis Konsistenz erreicht ist.
 
 \section{Loss Funktionen}
 
@@ -66,7 +66,7 @@ Mithilfe einer Loss Funktion $\mathcal{L}(y, y^*)$ wird quantifiziert, wie gut e
 \end{equation}
 
 
-Es werden direkt die Edges der Segmentierung $y$ und der Ground Truth $y^*$ verglichen und bei fehlender Übereinstimmung erhöht sich der Loss. Meist ist $\alpha_{under} > \alpha_{over}$ um Übersegmentierung zu bevorzugen, da es tragischer ist Objekte nicht zu erfassen, als sie in mehreren Teilen vorzufinden. 
+Es werden direkt die Kanten der Segmentierung $y$ und der Ground Truth $y^*$ verglichen und bei fehlender Übereinstimmung erhöht sich der Loss. Meist ist $\alpha_{under} > \alpha_{over}$ um Übersegmentierung zu bevorzugen, da es tragischer ist Objekte nicht zu erfassen, als sie in mehreren Teilen vorzufinden. 
 
 \subsection{Variation of Information}\label{sec:voi}
 
@@ -90,7 +90,7 @@ Um später mithilfe des Multicut Algorithmus Bilder optimal segmentieren zu kön
 
 Der Subgradient Descent Algorithmus basiert auf der Berechnung der Differenz der akkumulierten Feature der Segmentierung $y$ und der Ground Truth $y^*$, welche gewichtet dem weight Vector $w$ hinzuaddiert werden. Für nähere Details siehe \cite{NowozinStrucLearn11}.
 
-Die Minimierung des Partition Hamming Losses in dieser Arbeit wird hiermit realisiert.
+Die Minimierung des Hamming Losses in dieser Arbeit wird hiermit realisiert.
 
 \subsection{Stochastic Gradient}
 
@@ -144,6 +144,8 @@ Um die Gradientenrichtung zu bestimmen wird zunächst in \#Perturbs verschiedene
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
+
+\vspace{0.5cm}
 
 Für äquidistant gewählte Schrittweiten über 2 Größenordnungen wird jeweils der Mittelwert des Losses auf dem gesamten Trainingsset ermittelt und mit dem bisher besten Wert verglichen. Bei Erreichen eines neuen Tiefpunktes, wird direkt dorthin gesprungen, andernfalls wird die Schrittweite mit dem Niedrigsten erreichten Loss gewählt.
 
