@@ -16,7 +16,7 @@ Sowohl die resultierende Superpixel-Partitionierung mittels SLIC, als auch eine 
 	{\includegraphics[width=.49\linewidth]{gfx/slic.png}}
 	\hfill
 	\subfloat[Region Adjacency Graph aus Superpixels, Knoten: grüne Punkte, Kanten: blaue Linien]
-	{\includegraphics[width=.49\linewidth]{gfx/rag.png}}
+	{\includegraphics[width=.49\linewidth]{gfx/rag2.png}}
 \end{figure}
 \captionof{figure}{Beispiel einer Superpixel Partitionierung mittels SLIC}
 \label{fig:slic-rag}
@@ -74,8 +74,16 @@ Es werden direkt die Kanten der Segmentierung $y$ und der Ground Truth $y^*$ ver
 \mathcal{L}(y, y^*) = H_y + H_{y^*} - 2 \cdot I(y, y^*)
 \end{equation}
 
-$H_x$ ist hierbei die Entropie der Segmentierung $x$. Jede Segmentierung besitzt eine individuelle Entropie.  \\
-$I(x, x^*)$ bezeichnet die Transinformation, anschaulich gesehen entspricht diese der Schnittmenge der Ist- und Soll-Segmentierung. 
+\begin{equation}
+H_y = \mathbb{E}[\hat{I}(y)] = - \sum\limits_{l \in y} p(l) \cdot log_e( p(l) )
+\end{equation}
+
+\begin{equation}
+I(y, y^*) = \sum\limits_{l_1 \in y} \sum\limits_{l_2 \in y^*} p(l_1, l_2) \cdot log_e \left( \frac{p(l_1, l_2)}{p(l_1) p(l_2)} \right)
+\end{equation}
+
+$H_y$ ist hierbei die Entropie des Labelings $y$, welche als Erwartungswert der Information $\hat{I}$  definiert ist. Jede Segmentierung besitzt eine individuelle Entropie.  \\
+$I(y, y^*)$ bezeichnet die Transinformation, anschaulich gesehen entspricht diese der Schnittmenge der Ist- und Soll-Segmentierung. 
 Es werden also die Labels der Superpixel untersucht und bei fehlender Übereinstimmung beim Vergleich mit der Ground Truth erhöht sich der Loss.
 
 \section{Structured Learning}\label{sec:strucLearn}
