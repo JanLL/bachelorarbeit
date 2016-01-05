@@ -22,9 +22,11 @@ Das weite Forschungsfeld der Bildsegmentierung handelt von der Problemstellung, 
 \vspace{0.8cm}
 
 
-Dieser Prozess soll Lern-basiert sein, d.h. es werden dem Algorithmus Trainingsdaten mit Beispielbildern inklusive Soll-Segmentierung (Ground Truth) übergeben. Anhand dieser werden Parameter optimiert um möglichst allgemeingültig, den Trainingsdaten ähnliche Bilder ebenso in einzelne Segmente gliedern zu können.
+Dieser Prozess soll Lern-basiert sein, d.h. es werden dem Algorithmus Trainingsdaten mit Beispielbildern inklusive Soll-Segmentierung (Ground Truth) übergeben. Anhand dieser werden Parameter optimiert um möglichst allgemeingültig, den Trainingsdaten ähnliche, Bilder ebenso in einzelne Segmente gliedern zu können.
 
-In dieser Arbeit wird nun die Loss-Funktion Variation of Information (VOI) zur Quantifizierung der Qualität einer Segmentierung vorgestellt und mit einer bestehenden (Hamming Loss) verglichen. Da der Lern-Algorithmus auf diesem Kriterium aufbaut, ist dies elementar für die Güte der resultierenden Segmentierung.
+In dieser Arbeit handelt es sich um strukturelles Lernen da nicht jede Kante des Graphs für sich genommen betrachtet wird, sondern das Bild als Ganzes. Dies wirkt sich auch auf die Möglichkeiten von Loss-Funktionen aus, die Meta-Informationen der Bilder nutzen können, die beim unstrukturierten Lernen nicht zur Verfügung stehen.
+
+In diesem Sinne wird nun die Loss-Funktion Variation of Information (VOI) zur Quantifizierung der Qualität einer Segmentierung vorgestellt und mit einer bestehenden (Hamming Loss) verglichen. Da der Lern-Algorithmus auf diesem Kriterium aufbaut, ist dies elementar für die Güte der resultierenden Segmentierung.
 
 \newpage
 

@@ -17,9 +17,9 @@ kommt wenn des deutsche als ok befunden wurde...
 \begin{otherlanguage}{ngerman}
 \pdfbookmark[1]{Zusammenfassung}{Zusammenfassung}
 \chapter*{Zusammenfassung}
-Es existieren verschiedene Arten, wie die Loss Funktion einer Segmentierung definiert werden kann. Eine bisher oft verwendete Methode ist der Hamming Loss, bei der jede einzelne Edge mit der Ground Truth verglichen wird und bei fehlender Übereinstimmung der Loss steigt. Dies hat verschiedene Nachteile wie die Abhängigkeit einer sehr guten Ground Truth, sowie die Unstetigkeit (eine minimal verschobene Segmentierung wird als extrem schlecht eingestuft). \\
-Daher wird in dieser Arbeit die Berechnung des Losses mittels Variation of Information untersucht. Hierbei betrachtet man nicht mehr die einzelnen Edges, sondern die Labels der Segmentierung und bestraft flächenabhängig Unterschiede zur Ground Truth. \\
-Die Experimente wurden auf dem BSD-500 Datensatz durchgeführt, wobei die Minimierung des Hamming- und Variation of Information-Losses verglichen wurde. Wider den Erwartungen führt Letzteres allerdings zu einem Overfit der Trainingsdaten, wodurch die erhofften Verbesserungen nicht eintraten.
+Es existieren verschiedene Wege um eine Segmentierung von Bildern zu erhalten. In dieser Arbeit wird dies über das Lösen des Multicut Problems realisiert, was ein strukturelles Lernen der Parameter mit sich bringt. Hierzu gibt es verschiedene Arten, wie die Loss Funktion einer Segmentierung definiert werden kann. Eine bisher oft verwendete Methode ist der Hamming Loss, bei der jede einzelne Kante mit der Ground Truth verglichen wird und bei fehlender Übereinstimmung der Loss steigt. Dies hat verschiedene Nachteile wie die Abhängigkeit einer sehr guten Ground Truth, sowie die Unstetigkeit (eine minimal verschobene Segmentierung wird als extrem schlecht eingestuft). \\
+Daher wird in dieser Arbeit die Berechnung des Losses mittels Variation of Information untersucht. Hierbei betrachtet man nicht mehr die einzelnen Kanten, sondern die Labels der Segmentierung und bestraft flächenabhängig Unterschiede zur Ground Truth. \\
+Die Experimente wurden auf dem BSD-500 Datensatz durchgeführt, wobei die Minimierung des Hamming- und Variation of Information-Losses verglichen wurde. Wider den Erwartungen führt Letzteres allerdings je nach Feature Space entweder zu einem Overfit der Trainingsdaten oder zu keiner signifikanten Veränderung, wodurch die erhofften Verbesserungen nicht eintraten.
 
 \end{otherlanguage}
 

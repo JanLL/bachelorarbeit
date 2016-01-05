@@ -41,28 +41,30 @@ Anhand dieser, durch den Feature Space, gewichteten Kante eine konsistente Segme
 
 \begin{equation} 
 \begin{array}{rrclcl}
-\displaystyle arg \min_{y_e} & \sum\limits_{y \in E} w \beta_e \cdot y \\
+\displaystyle arg \min_{y} & \sum\limits_{y_i \in E} \langle w, \beta_e \rangle \cdot y_i \\
 \textrm{s.t.} &  y - \sum\limits_{y_i \in P(y)} y_i & \le & 0 & & \forall \ y \in E
 \end{array}
+\label{eq:mp}
 \end{equation}
+
 
 Hierbei entspricht $w \in \mathbb{R}^D$ den Weights der einzelnen Feature und $\beta_e \in \mathbb{R}^D$ den Funktionswerten der D extrahierten Informationen des Feature Spaces. Die Nebenbedingungen erzwingen die Konsistenz der Segmentierung. $P(y)$ ist hierbei der kürzeste Pfad über inaktive Kanten der beiden Superpixel, die benachbart zu $y$ sind. In der Praxis wird das Minimierungsproblem zunächst ohne Constraints gelöst und anschließend solange für diejenigen Kanten hinzugefügt, die die Konsistenzbedingung verletzen, bis Konsistenz erreicht ist.
 
-\section{Loss Funktionen}
+\section{Loss Funktionen}\label{sec:loss-fkts}
 
 Mithilfe einer Loss Funktion $\mathcal{L}(y, y^*)$ wird quantifiziert, wie gut eine Segmentierung $y$ mit derjenigen der Ground Truth $y^*$ übereinstimmt. In dieser Arbeit wird die Methode Variation of Information vorgestellt und mit der bestehenden des Hamming Loss verglichen.
 
 \subsection{Hamming Loss}
 
 \begin{equation}
-\mathcal{L}(y_i, y_i^*) = \left\{ \begin{array}{lcc}  
+\mathcal{L}_i(y_i, y_i^*) = \left\{ \begin{array}{lcc}  
 \mathbb{I}[y_i \neq y_i^*] \cdot \alpha_{over} & \text{if} & y_i^* = 0  \\ 
 \mathbb{I}[y_i \neq y_i^*] \cdot \alpha_{under} & \text{if} & y_i^* = 1         
 \end{array}  \right.  \quad \forall y_i \in E 
 \end{equation}
 
 \begin{equation}
-\mathcal{L}(y, y^*) = \sum\limits_{y_i \in E} \mathcal{L}(y_i, y_i^*)
+\mathcal{L}_H(y, y^*) = \sum\limits_{y_i \in E} \mathcal{L}_i(y_i, y_i^*)
 \end{equation}
 
 
@@ -71,7 +73,7 @@ Es werden direkt die Kanten der Segmentierung $y$ und der Ground Truth $y^*$ ver
 \subsection{Variation of Information}\label{sec:voi}
 
 \begin{equation}
-\mathcal{L}(y, y^*) = H_y + H_{y^*} - 2 \cdot I(y, y^*)
+\mathcal{L}_{VOI}(y, y^*) = H_y + H_{y^*} - 2 \cdot I(y, y^*)
 \end{equation}
 
 \begin{equation}
@@ -88,21 +90,42 @@ Es werden also die Labels der Superpixel untersucht und bei fehlender Übereinst
 
 \section{Structured Learning}\label{sec:strucLearn}
 
-Um später mithilfe des Multicut Algorithmus Bilder optimal segmentieren zu können, muss der Parameter $w$ bestimmt werden. "Optimal" bedeutet hier in Bezug auf eine Loss Funktion, die als Qualitätskriterium dient. Da ein niedriger Loss für eine gute Segmentierung steht ist also das folgende Minimierungsproblem zu lösen:
+Allgemein wird beim Lernprozess eine Abbildung $f: X \rightarrow Y$ gesucht, welche die Feature $X$ in einen Output $Y$ überführt. Der Hauptunterschied zum unstrukturierten Lernen besteht nun in der Form dieses Outputs. Je nach Klassifikations- oder Regressionsproblem besteht beim unstrukturierten Lernen der Output entweder aus Klassen oder reellen Zahlen. Beim strukturierten Lernen hingegen existiert ein zulässiges Set an Outputs, welche einer gewissen Struktur genügen. In unserem Fall ist diese Struktur die konsistente Segmentierung. Man kann unser Problem auch als Klassifikationsproblem der Kanten mit Nebenbedingungen betrachten. Da somit die einzelnen Outputs $y \in Y$ miteinander in Verbindung stehen, muss beim Lernprozess der Loss gemeinsam für alle $y$ berechnet werden.
 
-\begin{equation}
-\hat{w} = arg\min_{w} \mathcal{L}(y, y^*)
-\end{equation}
+Beim Multicut Problem \eqref{eq:mp} wird $f$ durch die Weights $w$ spezifiziert, welche je nach Abstiegsverfahren und Loss unterschiedlich erlangt werden. Die konkreten Methoden werden in den folgenden Kapiteln erläutert. 
+
+Ein weiterer Unterschied besteht in der Wahl der Loss-Funktion, welche in Kapitel \ref{sec:loss-fkts} vorgestellt wurden. Beim unstrukturierten Lernen wird bei der Klassifikation oft der 0-1-Loss genommen, bei dem der Output entweder der Ground Truth entspricht, oder eben nicht. Aufgrund der Struktur der Lösung ist dies hier allerdings nicht sonderlich sinnvoll da es eben schlechtere und bessere Segmentierungen gibt und diese Abstufungen unterschieden werden sollten, was beispielsweise durch die genannten Loss Funktionen ermöglicht wird.
+
+
+%Um später mithilfe des Multicut Algorithmus Bilder optimal segmentieren zu können, muss der Parameter $w$ aus \eqref{eq:mp} bestimmt werden. 
+
+%\grqq Optimal\grqq \ bedeutet hier in Bezug auf eine Loss Funktion, die als Qualitätskriterium dient. Da ein niedriger Loss für eine gute Segmentierung steht ist also das folgende Minimierungsproblem zu lösen:
+
+%\begin{equation}
+%\hat{w} = arg\min_{w} \mathcal{L}(y, y^*)
+%\end{equation}
 
 \subsection{Subgradient Descent}
 
-Der Subgradient Descent Algorithmus basiert auf der Berechnung der Differenz der akkumulierten Feature der Segmentierung $y$ und der Ground Truth $y^*$, welche gewichtet dem weight Vector $w$ hinzuaddiert werden. Für nähere Details siehe \cite{NowozinStrucLearn11}.
+Der Subgradient Descent Algorithmus basiert auf der Berechnung der Differenz der akkumulierten Feature der Segmentierung $y$ und der Ground Truth $y^*$, welche gewichtet den Weights $w$ hinzu addiert werden. In \cite{NowozinStrucLearn11} wird der Algorithmus ausführlich ausgeführt. 
 
-Die Minimierung des Hamming Losses in dieser Arbeit wird hiermit realisiert.
+Die Berechnung des Loss findet hierbei beim Lösen des Multicut Problems statt, sodass dieses wie folgt aussieht:
+
+\begin{equation} 
+\begin{array}{rrclcl}
+\displaystyle arg \min_{y} & \sum\limits_{y_i \in E} \langle w, \beta_e \rangle \cdot y_i + \mathcal{L}_H(y, y^*) \\
+\textrm{s.t.} &  y - \sum\limits_{y_i \in P(y)} y_i & \le & 0 & & \forall \ y \in E
+\end{array}
+\label{eq:mp-hamming}
+\end{equation}
+
+Die Minimierung des Hamming Loss wird in dieser Arbeit hiermit realisiert.
 
 \subsection{Stochastic Gradient}
 
-Der hier verwendete Stochastic Gradient ist eine Variante des in \cite{NowozinStrucLearn11} näher erläuterten Algorithmus. Im folgenden wird die hier angewandte Methode zur Ermittlung der Gradientenrichtung (Alg. \ref{alg:sg_dir}), sowie der Liniensuche (Alg. \ref{alg:sgd_ls}), also der Schrittweite pro Iterationsschritt beschrieben: \\
+Der hier verwendete Stochastic Gradient ist eine Variante des in \cite{NowozinStrucLearn11} näher erläuterten Algorithmus. Anders als beim Subgradient Descent wird hier zunächst das Multicut Problem ohne Loss \eqref{eq:mp} gelöst und anschließend der Loss der resultierenden Segmentierung berechnet.
+
+Im folgenden wird die hier angewandte Methode zur Ermittlung der Gradientenrichtung (Alg. \ref{alg:sg_dir}), sowie der Liniensuche (Alg. \ref{alg:sgd_ls}), also der Schrittweite pro Iterationsschritt beschrieben: \\
 
 \begin{algorithm}[H]
 \caption{Get Gradient Descent Direction}\label{alg:sg_dir}
@@ -143,7 +166,7 @@ Um die Gradientenrichtung zu bestimmen wird zunächst in \#Perturbs verschiedene
 		\If{$\mathcal{L} < \mathcal{L}_{best}$}
 			\State $\mathcal{L}_{best} = \mathcal{L}$
 			\State Save $w_{best} = w$
-			\State Break for-loop
+			\State Break
 		\EndIf
 		\State Memorize $\mathcal{L}$ and associated varied Weight Vector
 	\EndFor
