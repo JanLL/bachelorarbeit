@@ -3,11 +3,11 @@
 %*****************************************
 \section{Graphen Theorie}\label{sec:graphTheory}
 
-Die Grundlage aller weiteren Betrachtungen ist ein Region Adjacency Graph (RAG). Um diesen zu erstellen, wird das Bild zunächst mithilfe des SLIC-Algorithmus \cite{slic} in Superpixel unterteilt, dessen Ränder möglichst an den Objektkonturen verlaufen. 
+Die Grundlage aller weiteren Betrachtungen ist ein Region Adjacency Graph (RAG). Um diesen zu erstellen, wird das Bild zunächst mithilfe des SLIC-Algorithmus \cite{slic} in Superpixel unterteilt, dessen Ränder möglichst an den Objektkonturen verlaufen. Die grundsätzliche Idee dahinter ist die, Schwerpunkte bezüglich Distanz und Farbe für jeden Superpixel zu bilden und iterativ Pixel einem Schwerpunkt mit möglichst kleiner Farb-Raum-Distanz zuzuordnen. 
 
 Der Region Adjacency Graph G baut sich aus Knoten V und Kanten E auf. In unserem Fall entsprechen die Nodes den Superpixeln. Die Kanten bestehen nur zwischen denjenigen Nodes, bei denen die zugehörigen Superpixel direkt angrenzen und somit eine gemeinsame Kante besitzen. 
 
-Sowohl die resultierende Superpixel-Partitionierung mittels SLIC, als auch eine Demonstration, wie daraus der Region Adjacency Graph entsteht, sind in Abb. \ref{fig:slic-rag} dargestellt.
+Sowohl die resultierende Superpixel-Partitionierung mittels SLIC, als auch eine Demonstration, wie daraus der Region Adjacency Graph entsteht, ist in Abb. \ref{fig:slic-rag} dargestellt.
 
 \begin{figure}[H]
 
@@ -24,7 +24,7 @@ Sowohl die resultierende Superpixel-Partitionierung mittels SLIC, als auch eine 
 \vspace{0.5cm}
 
 
-Bei der Segmentierung geht es darum, ein konsistentes Labeling der Superpixel zu erreichen. Dies wird über die Aktivität der Kanten erreicht, welche an- oder ausgeschaltet sein können. Für die Aktivität einer Kante $y$ gilt somit: $y \in \{\text{0, 1}\}$, wobei $1$ aktiv und 0 inaktiv bedeutet \\
+Bei der Segmentierung geht es darum, ein konsistentes Labeling der Superpixel zu erreichen. Dies wird über die Aktivität der Kanten erreicht, welche an- oder ausgeschaltet sein können. Für die Aktivität einer Kante $y$ gilt somit: $y \in \{\text{0, 1}\}$, wobei $1$ aktiv und $0$ inaktiv bedeutet. \\
 Konsistent ist eine Segmentierung genau dann, wenn bei aktiven Kanten die zugehörigen Superpixel verschiedene Labels haben und analog bei inaktiven Kanten die Superpixel die gleichen Labels. Anschaulich gesehen ist dies der Fall, wenn alle aktiven Kanten geschlossene Linien bilden.
 
 

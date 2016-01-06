@@ -7,8 +7,19 @@
 
 Die Trainings- und Testbilder stammten vom Berkeley Segmentation Dataset (BSD-500) \cite{BSD}, welches aus natürlichen Bildern besteht. Der Datensatz ist gegliedert in einen Trainings- Test- und Validierungsbereich, wobei die Test-Bilder genommen wurden, da hierfür State of the Art Kantendetektoren als Feature zur Verfügung standen. Sowohl unser Trainings- als auch das Testset bestand schließlich aus 100 Bildern. \\
 
-Die Ground Truth der verwendeten Bilder stammen ebenfalls aus dem BSD-500 Datensatz und lagen in Form eines Pixel-Labelings vor, d.h. jedem Pixel ist eine Zahl zugeordnet, zu welchem Segment es gehört. Letztendlich will man allerdings das Labeling der zuvor berechneten Superpixel haben. Hierzu wird durch alle Superpixel iteriert und jeweils die Anzahl der Label auf Pixelebene gezählt. Dem Superpixel wird nun dasjenige Label zugeordnet, welches am häufigsten auf Pixelebene vorkommt (Majority Vote).
+Die Ground Truth der verwendeten Bilder stammen ebenfalls aus dem BSD-500 Datensatz und lagen in Form eines Pixel-Labelings vor, d.h. jedem Pixel ist eine Zahl zugeordnet, zu welchem Segment es gehört. Letztendlich will man allerdings das Labeling der zuvor berechneten Superpixel haben. Hierzu wird durch alle Superpixel iteriert und jeweils die Anzahl der Label auf Pixelebene gezählt. Dem Superpixel wird nun dasjenige Label zugeordnet, welches am häufigsten auf Pixelebene vorkommt (Majority Vote). 
 
+Ein Beispiel findet sich in Abb. \ref{fig:gt-labels-sp}: Die farbigen Bereiche entsprechen dem Pixel-Labeling der Ground Truth, außerdem ist das Bild zuvor durch den SLIC-Alorithmus in 4 Superpixel eingeteilt worden. Für jeden Superpixel wird nun geschaut, welches Label am Häufigsten vorkommt. Für die zwei linken Superpixel ist dies der violette, oben rechts offensichtlich der blaue und unten links der grüne Bereich. Bei der Ground Truth ist also nur die linke Kante inaktiv. 
+
+\vspace{1cm}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=.6\linewidth]{gfx/gt-labels-sp.png}
+\end{figure}
+\captionof{figure}{Ground Truth Labeling (farbige Bereiche) und Superpixel vom SLIC-Algorithmus (abgegrenzt durch rote Linien)}
+\label{fig:gt-labels-sp}
+\vspace{1cm}
 
 \section{Graphical Model Unterbau und Solver}
 
@@ -19,9 +30,7 @@ Zur Generierung des Region Adjacency Graphs, des Random Forests und der Filter w
 
 \section{Feature Space}\label{sec:exp_featureSpace}
 
-
-
-Beim BSD hat sich der Feature Space folgendermaßen zusammengesetzt:
+Der Feature Space wurde folgendermaßen zusammengesetzt:
 
 \begin{itemize}
 	\item Gaussian Gradient Magnitude mit $\sigma=\{1, 2, 5\}$
@@ -44,22 +53,47 @@ Beim BSD hat sich der Feature Space folgendermaßen zusammengesetzt:
 	\item Konstantes Feature für jede Kante, zur Beseitigung des Bias im Feature Space
 \end{itemize}
 
+In Abb. \ref{fig:n4} und \ref{fig:filters} sind einige Filter dargestellt. 
+
+\newpage
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=.65\linewidth]{gfx/kanten-gewichtung-pixel-sp.png}
+\end{figure}
+\captionof{figure}{Pixel und Kanten auf Pixelebene ($u_i$ und $v_i$), als auch auf Superpixelebene ($u$ und $v$)}
+\label{fig:kanten-gewichtung-pixel-sp}
+\vspace{0.5cm}
+
+Um nun aus diesen Pixelinformationen der Filter die Gewichtungen der Superpixelkanten zu bekommen (veranschaulicht in Abb. \ref{fig:kanten-gewichtung-pixel-sp}) werden zunächst die Kantengewichte auf Pixelebene berechnet. Bei Pixel $u_i$ und $v_i$ beträgt das zugehörige Kantengewicht:
+\begin{equation}
+	E_{i}=\frac{u_i+v_i}{2}
+\end{equation} 
+Anschließend wird der Mittelwert der Pixelkanten, welche zu einer Superpixelkante gehören, gebildet. 
+\begin{equation}
+E_{uv} = \frac{1}{N} \sum\limits_{i=1}^{N} E_i
+\end{equation}
+
+Dies ist die gewünschte Gewichtung der Superpixelkante. \\
+
+
 Zusätzlich wurde aus den Feature Spaces aller Trainingsdaten ein Random Forest aufgebaut und dieser zur Generierung eines Weiteren (RF Feature) verwendet.
 
 \vspace{1cm}
 
 \begin{figure}[H]
-
+	\centering
 	\includegraphics[width=.65\linewidth]{gfx/bereich-um-sp.png}
 \end{figure}
 \captionof{figure}{Variable Bereiche um Kante der Superpixel u und v}
 \label{fig:var-bereich-sp}
-\vspace{1cm}
+\vspace{0.5cm}
 
-In Abb. \ref{fig:n4} sind Beispiele für den State-of-the-art Kantendetektor $N^4$-Fields. Man sieht deutlich, dass Objektgrenzen registriert werden obwohl der Gradient aufgrund der Farbunterschiede nicht sonderlich hoch ist, beispielsweise am oberen Kopfende des Eisbärs. Allerdings arbeiten auch diese Filter nicht perfekt, wie man am unteren Bereich der Hose des Mannes bei c) sieht, diese Objektgrenze wird nicht sehr scharf registriert. 
+In Abb. \ref{fig:n4} sind Beispiele für den State-of-the-Art Kantendetektor $N^4$-Fields. Man sieht deutlich, dass Objektgrenzen registriert werden obwohl der Gradient aufgrund der Farbunterschiede nicht sonderlich hoch ist, beispielsweise am oberen Kopfende des Eisbärs. Allerdings arbeiten auch diese Filter nicht perfekt, wie man am unteren Bereich der Hose des Mannes bei c) sieht, diese Objektgrenze wird nicht sehr scharf registriert. 
 
+\newpage
 
-\begin{figure}[H]
+\begin{figure}[p]
 	\centering
 	\subfloat[]
 	{\includegraphics[width=.49\linewidth]{gfx/183066.jpg}}
@@ -73,11 +107,46 @@ In Abb. \ref{fig:n4} sind Beispiele für den State-of-the-art Kantendetektor $N^
 	\subfloat[]
 	{\includegraphics[width=.49\linewidth]{gfx/64061.png}}
 	
-
+	\caption{Beispiele $N^4$-Fields Kantendetektor}
+	\label{fig:n4}
 \end{figure}
-\captionof{figure}{Beispiele $N^4$-Fields Kantendetektor}
-\label{fig:n4}
 
+%\captionof{figure}{Beispiele $N^4$-Fields Kantendetektor}
+
+
+
+\begin{figure}[p]
+	\centering
+	%\subfloat[]
+	%{\includegraphics[width=.49\linewidth]{gfx/183066.jpg}}
+	
+	\subfloat[]
+	{\includegraphics[width=.49\linewidth]{gfx/gradMag1.png}}
+	\hfill
+	\subfloat[]
+	{\includegraphics[width=.49\linewidth]{gfx/gradMag2.png}}
+	
+	\subfloat[]
+	{\includegraphics[width=.49\linewidth]{gfx/HessEV1.png}}
+	\hfill
+	\subfloat[]
+	{\includegraphics[width=.49\linewidth]{gfx/HessEV2.png}}
+
+	\subfloat[]
+	{\includegraphics[width=.49\linewidth]{gfx/LoG.png}}
+	\hfill
+	\subfloat[]
+	{\includegraphics[width=.49\linewidth]{gfx/canny.png}}
+	
+	\subfloat[]
+	{\includegraphics[width=.49\linewidth]{gfx/structureTensor1.png}}
+	\hfill
+	\subfloat[]
+	{\includegraphics[width=.49\linewidth]{gfx/structureTensor2.png}}
+	
+	\captionof{figure}{Output verschiedener Filter auf Pixelebene: (a)\&(b) Gradient Magnitude mit $\sigma=\{1, 2\}$, (c)\&(d) Hessian of Gaussian Eigenvalues, (e) Laplacian of Gaussian, (f) Canny, (g)\&(h) Structure Tensor Eigenvalues }
+	\label{fig:filters}
+\end{figure}
 
 
 

@@ -7,23 +7,23 @@
 \contentsline {section}{\numberline {1.1}Motivation Variation of Information}{2}{section.1.1}
 \contentsline {chapter}{\numberline {2}\spacedlowsmallcaps {Theoretische Grundladen}}{3}{chapter.2}
 \contentsline {section}{\numberline {2.1}Graphen Theorie}{3}{section.2.1}
-\contentsline {section}{\numberline {2.2}Feature Space}{3}{section.2.2}
+\contentsline {section}{\numberline {2.2}Feature Space}{4}{section.2.2}
 \contentsline {section}{\numberline {2.3}Das Multicut Problem}{4}{section.2.3}
 \contentsline {section}{\numberline {2.4}Loss Funktionen}{4}{section.2.4}
 \contentsline {subsection}{\numberline {2.4.1}Hamming Loss}{4}{subsection.2.4.1}
-\contentsline {subsection}{\numberline {2.4.2}Variation of Information}{4}{subsection.2.4.2}
+\contentsline {subsection}{\numberline {2.4.2}Variation of Information}{5}{subsection.2.4.2}
 \contentsline {section}{\numberline {2.5}Structured Learning}{5}{section.2.5}
-\contentsline {subsection}{\numberline {2.5.1}Subgradient Descent}{5}{subsection.2.5.1}
+\contentsline {subsection}{\numberline {2.5.1}Subgradient Descent}{6}{subsection.2.5.1}
 \contentsline {subsection}{\numberline {2.5.2}Stochastic Gradient}{6}{subsection.2.5.2}
 \contentsline {chapter}{\numberline {3}\spacedlowsmallcaps {Related Work}}{9}{chapter.3}
 \contentsline {chapter}{\numberline {4}\spacedlowsmallcaps {Experimentelles Setup}}{11}{chapter.4}
 \contentsline {section}{\numberline {4.1}Trainings- und Testdaten}{11}{section.4.1}
-\contentsline {section}{\numberline {4.2}Graphical Model Unterbau und Solver}{11}{section.4.2}
-\contentsline {section}{\numberline {4.3}Feature Space}{11}{section.4.3}
-\contentsline {chapter}{\numberline {5}\spacedlowsmallcaps {Experimente und Resultate}}{15}{chapter.5}
-\contentsline {section}{\numberline {5.1}Stochastic Gradient mit RF Feature}{15}{section.5.1}
-\contentsline {section}{\numberline {5.2}Stochastic Gradient ohne RF Feature}{23}{section.5.2}
-\contentsline {section}{\numberline {5.3}Kreuzvalidierung Messung 10}{27}{section.5.3}
-\contentsline {chapter}{\numberline {6}\spacedlowsmallcaps {Fazit}}{29}{chapter.6}
+\contentsline {section}{\numberline {4.2}Graphical Model Unterbau und Solver}{12}{section.4.2}
+\contentsline {section}{\numberline {4.3}Feature Space}{12}{section.4.3}
+\contentsline {chapter}{\numberline {5}\spacedlowsmallcaps {Experimente und Resultate}}{17}{chapter.5}
+\contentsline {section}{\numberline {5.1}Stochastic Gradient mit RF Feature}{17}{section.5.1}
+\contentsline {section}{\numberline {5.2}Stochastic Gradient ohne RF Feature}{25}{section.5.2}
+\contentsline {section}{\numberline {5.3}Kreuzvalidierung Messung 10}{29}{section.5.3}
+\contentsline {chapter}{\numberline {6}\spacedlowsmallcaps {Fazit}}{31}{chapter.6}
 \vspace {\beforebibskip }
-\contentsline {chapter}{\spacedlowsmallcaps {Literaturverzeichnis}}{31}{dummy.2}
+\contentsline {chapter}{\spacedlowsmallcaps {Literaturverzeichnis}}{33}{dummy.2}
