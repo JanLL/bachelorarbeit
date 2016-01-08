@@ -5,7 +5,9 @@
 
 Die Grundlage aller weiteren Betrachtungen ist ein Region Adjacency Graph (RAG). Um diesen zu erstellen, wird das Bild zunächst mithilfe des SLIC-Algorithmus \cite{slic} in Superpixel unterteilt, dessen Ränder möglichst an den Objektkonturen verlaufen. Die grundsätzliche Idee dahinter ist die, Schwerpunkte bezüglich Distanz und Farbe für jeden Superpixel zu bilden und iterativ Pixel einem Schwerpunkt mit möglichst kleiner Farb-Raum-Distanz zuzuordnen. 
 
-Der Region Adjacency Graph G baut sich aus Knoten V und Kanten E auf. In unserem Fall entsprechen die Nodes den Superpixeln. Die Kanten bestehen nur zwischen denjenigen Nodes, bei denen die zugehörigen Superpixel direkt angrenzen und somit eine gemeinsame Kante besitzen. 
+Die Betrachtung auf Superpixel- statt auf Pixelebene ist notwendig da das zu lösende Multicut Problem NP-hard ist und deshalb die Anzahl der Kanten des Graphs mithilfe von Superpixeln reduziert werden muss.
+
+Der Region Adjacency Graph G baut sich aus Knoten V und Kanten E auf. In unserem Fall entsprechen die Knoten den Superpixeln. Die Kanten bestehen nur zwischen denjenigen Knoten, bei denen die zugehörigen Superpixel direkt angrenzen und somit eine gemeinsame Kante besitzen. 
 
 Sowohl die resultierende Superpixel-Partitionierung mittels SLIC, als auch eine Demonstration, wie daraus der Region Adjacency Graph entsteht, ist in Abb. \ref{fig:slic-rag} dargestellt.
 
@@ -36,7 +38,7 @@ Der Feature Space $X \in \mathbb{R}^{|E|xD}$ ordnet jeder Kante D Features zu, d
 
 \section{Das Multicut Problem}\label{sec:multicutProb}
 
-Anhand dieser, durch den Feature Space, gewichteten Kante eine konsistente Segmentierung zu erhalten wird als Multicut Problem (MP) bezeichnet. Es wird durch folgendes Minimierungsproblem beschrieben: 
+Die Aufgabe, eine konsistente Segmentierung anhand der durch den Feature Space beschriebenen gewichteten Kanten zu erstellen, wird als Multicut Problem (MP) bezeichnet. Es wird durch folgendes Minimierungsproblem beschrieben: 
 
 
 \begin{equation} 
@@ -48,7 +50,7 @@ Anhand dieser, durch den Feature Space, gewichteten Kante eine konsistente Segme
 \end{equation}
 
 
-Hierbei entspricht $w \in \mathbb{R}^D$ den Weights der einzelnen Feature und $\beta_e \in \mathbb{R}^D$ den Funktionswerten der D extrahierten Informationen des Feature Spaces. Die Nebenbedingungen erzwingen die Konsistenz der Segmentierung. $P(y)$ ist hierbei der kürzeste Pfad über inaktive Kanten der beiden Superpixel, die benachbart zu $y$ sind. In der Praxis wird das Minimierungsproblem zunächst ohne Constraints gelöst und anschließend solange für diejenigen Kanten hinzugefügt, die die Konsistenzbedingung verletzen, bis Konsistenz erreicht ist.
+Hierbei entspricht $w \in \mathbb{R}^D$ den Weights der einzelnen Feature und $\beta_e \in \mathbb{R}^D$ den Funktionswerten der D extrahierten Informationen des Feature Spaces bezüglich Kante $e$. Die Nebenbedingungen erzwingen die Konsistenz der Segmentierung. $P(y)$ ist hierbei der kürzeste Pfad über inaktive Kanten der beiden Superpixel, die benachbart zu $y$ sind. In der Praxis wird das Minimierungsproblem zunächst ohne Constraints gelöst und anschließend solange für diejenigen Kanten hinzugefügt, die die Konsistenzbedingung verletzen, bis Konsistenz erreicht ist.
 
 \section{Loss Funktionen}\label{sec:loss-fkts}
 
@@ -109,7 +111,7 @@ Ein weiterer Unterschied besteht in der Wahl der Loss-Funktion, welche in Kapite
 
 Der Subgradient Descent Algorithmus basiert auf der Berechnung der Differenz der akkumulierten Feature der Segmentierung $y$ und der Ground Truth $y^*$, welche gewichtet den Weights $w$ hinzu addiert werden. In \cite{NowozinStrucLearn11} wird der Algorithmus ausführlich ausgeführt. 
 
-Die Berechnung des Loss findet hierbei beim Lösen des Multicut Problems statt, sodass dieses wie folgt aussieht:
+Die Berechnung des Loss findet hier beim Lösen des Multicut Problems statt, sodass dieses wie folgt aussieht:
 
 \begin{equation} 
 \begin{array}{rrclcl}
@@ -146,7 +148,7 @@ Im folgenden wird die hier angewandte Methode zur Ermittlung der Gradientenricht
 \end{algorithmic}
 \end{algorithm}
 
-Um die Gradientenrichtung zu bestimmen wird zunächst in \#Perturbs verschiedene normalverteilte Richtungen, vom momentanen Weight Vector aus, der Loss auf dem aktuellen Bild berechnet. Anschließend werden die einzelnen Richtungen nach ihrem Loss gewichtet, wodurch man eine Richtung starken Anstieges ermittelt hat. Daher ist am Ende noch ein Vorzeichenwechsel nötig.
+Um die Gradientenrichtung zu bestimmen wird zunächst in \#Perturbs verschiedene normalverteilte Richtungen, der momentanen Weights aus, der Loss auf dem aktuellen Bild berechnet. Anschließend werden die einzelnen Richtungen nach ihrem Loss gewichtet, wodurch man eine Richtung starken Anstieges ermittelt hat. Daher ist am Ende noch ein Vorzeichenwechsel nötig.
 
 \vspace{1cm}
 

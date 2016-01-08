@@ -5,11 +5,11 @@
 \section{Trainings- und Testdaten}
 
 
-Die Trainings- und Testbilder stammten vom Berkeley Segmentation Dataset (BSD-500) \cite{BSD}, welches aus natürlichen Bildern besteht. Der Datensatz ist gegliedert in einen Trainings- Test- und Validierungsbereich, wobei die Test-Bilder genommen wurden, da hierfür State of the Art Kantendetektoren als Feature zur Verfügung standen. Sowohl unser Trainings- als auch das Testset bestand schließlich aus 100 Bildern. \\
+Die Trainings- und Testbilder stammten vom Berkeley Segmentation Dataset (BSD-500) \cite{BSD}, welches aus natürlichen Bildern besteht. Der Datensatz ist gegliedert in einen Trainings-, Test- und Validierungsbereich, wobei die Test-Bilder genommen wurden, da hierfür State of the Art Kantendetektoren als Feature zur Verfügung standen. Sowohl das in dieser Arbeit verwendete Trainings- als auch das Testset bestand schließlich aus $100$ Bildern. \\
 
 Die Ground Truth der verwendeten Bilder stammen ebenfalls aus dem BSD-500 Datensatz und lagen in Form eines Pixel-Labelings vor, d.h. jedem Pixel ist eine Zahl zugeordnet, zu welchem Segment es gehört. Letztendlich will man allerdings das Labeling der zuvor berechneten Superpixel haben. Hierzu wird durch alle Superpixel iteriert und jeweils die Anzahl der Label auf Pixelebene gezählt. Dem Superpixel wird nun dasjenige Label zugeordnet, welches am häufigsten auf Pixelebene vorkommt (Majority Vote). 
 
-Ein Beispiel findet sich in Abb. \ref{fig:gt-labels-sp}: Die farbigen Bereiche entsprechen dem Pixel-Labeling der Ground Truth, außerdem ist das Bild zuvor durch den SLIC-Alorithmus in 4 Superpixel eingeteilt worden. Für jeden Superpixel wird nun geschaut, welches Label am Häufigsten vorkommt. Für die zwei linken Superpixel ist dies der violette, oben rechts offensichtlich der blaue und unten links der grüne Bereich. Bei der Ground Truth ist also nur die linke Kante inaktiv. 
+Ein Beispiel findet sich in Abb. \ref{fig:gt-labels-sp}: Die farbigen Bereiche entsprechen dem Pixel-Labeling der Ground Truth, außerdem ist das Bild zuvor durch den SLIC-Alorithmus in 4 Superpixel eingeteilt worden. Für jeden Superpixel wird nun geschaut, welches Label am Häufigsten vorkommt. Für die zwei linken Superpixel ist dies der violette, oben rechts offensichtlich der blaue und unten rechts der grüne Bereich. Bei der Ground Truth ist somit nur die linke Kante inaktiv. 
 
 \vspace{1cm}
 
@@ -17,7 +17,7 @@ Ein Beispiel findet sich in Abb. \ref{fig:gt-labels-sp}: Die farbigen Bereiche e
 	\centering
 	\includegraphics[width=.6\linewidth]{gfx/gt-labels-sp.png}
 \end{figure}
-\captionof{figure}{Ground Truth Labeling (farbige Bereiche) und Superpixel vom SLIC-Algorithmus (abgegrenzt durch rote Linien)}
+\captionof{figure}{Ground Truth Labeling (farbige Bereiche) und Kanten der Superpixel vom SLIC-Algorithmus in rot}
 \label{fig:gt-labels-sp}
 \vspace{1cm}
 
@@ -89,11 +89,13 @@ Zusätzlich wurde aus den Feature Spaces aller Trainingsdaten ein Random Forest 
 \label{fig:var-bereich-sp}
 \vspace{0.5cm}
 
-In Abb. \ref{fig:n4} sind Beispiele für den State-of-the-Art Kantendetektor $N^4$-Fields. Man sieht deutlich, dass Objektgrenzen registriert werden obwohl der Gradient aufgrund der Farbunterschiede nicht sonderlich hoch ist, beispielsweise am oberen Kopfende des Eisbärs. Allerdings arbeiten auch diese Filter nicht perfekt, wie man am unteren Bereich der Hose des Mannes bei c) sieht, diese Objektgrenze wird nicht sehr scharf registriert. 
-
 \newpage
 
-\begin{figure}[p]
+In Abb. \ref{fig:n4} sind Beispiele für den state-of-the-art Kantendetektor $N^4$-Fields. Man sieht deutlich, dass Objektgrenzen registriert werden obwohl der Gradient aufgrund der Farbunterschiede nicht sonderlich hoch ist, beispielsweise am oberen Kopfende des Eisbärs. Allerdings arbeiten auch diese Filter nicht perfekt, wie man am unteren Bereich der Hose des Mannes bei \ref{fig:n4-3} sieht, diese Objektgrenze wird nicht sehr scharf registriert. 
+
+%\newpage
+
+\begin{figure}[H]
 	\centering
 	\subfloat[]
 	{\includegraphics[width=.49\linewidth]{gfx/183066.jpg}}
@@ -102,7 +104,8 @@ In Abb. \ref{fig:n4} sind Beispiele für den State-of-the-Art Kantendetektor $N^
 	{\includegraphics[width=.49\linewidth]{gfx/183066.png}}
 	
 	\subfloat[]
-	{\includegraphics[width=.49\linewidth]{gfx/64061.jpg}}
+	{\includegraphics[width=.49\linewidth]{gfx/64061.jpg}
+	\label{fig:n4-3}}
 	\hfill
 	\subfloat[]
 	{\includegraphics[width=.49\linewidth]{gfx/64061.png}}
