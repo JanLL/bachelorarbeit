@@ -3,7 +3,7 @@
 %*****************************************
 \section{Graphen Theorie}\label{sec:graphTheory}
 
-Die Grundlage aller weiteren Betrachtungen ist ein Region Adjacency Graph (RAG). Um diesen zu erstellen, wird das Bild zunächst mithilfe des SLIC-Algorithmus \cite{slic} in Superpixel unterteilt, dessen Ränder möglichst an den Objektkonturen verlaufen. Die grundsätzliche Idee dahinter ist die, Schwerpunkte bezüglich Distanz und Farbe für jeden Superpixel zu bilden und iterativ Pixel einem Schwerpunkt mit möglichst kleiner Farb-Raum-Distanz zuzuordnen. 
+Die Grundlage aller weiteren Betrachtungen ist ein Region Adjacency Graph (RAG). Um diesen zu erstellen, wird das Bild zunächst mithilfe des SLIC-Algorithmus \cite{slic} in Superpixel unterteilt, dessen Ränder möglichst an den Objektkonturen verlaufen. Die grundsätzliche Idee ist die, Schwerpunkte bezüglich Distanz und Farbe für jeden Superpixel zu bilden und iterativ Pixel einem Schwerpunkt mit möglichst kleiner Farb-Raum-Distanz zuzuordnen. 
 
 Die Betrachtung auf Superpixel- statt auf Pixelebene ist notwendig da das zu lösende Multicut Problem NP-hard ist und deshalb die Anzahl der Kanten des Graphs mithilfe von Superpixeln reduziert werden muss.
 
@@ -17,7 +17,7 @@ Sowohl die resultierende Superpixel-Partitionierung mittels SLIC, als auch eine 
 	\subfloat[SLIC Superpixels]
 	{\includegraphics[width=.49\linewidth]{gfx/slic.png}}
 	\hfill
-	\subfloat[Region Adjacency Graph aus Superpixels, Knoten: grüne Punkte, Kanten: blaue Linien]
+	\subfloat[Region Adjacency Graph aus Superpixel (rot), Knoten: grüne Punkte, Kanten: blaue Linien]
 	{\includegraphics[width=.49\linewidth]{gfx/rag2.png}}
 \end{figure}
 \captionof{figure}{Beispiel einer Superpixel Partitionierung mittels SLIC}
@@ -26,13 +26,13 @@ Sowohl die resultierende Superpixel-Partitionierung mittels SLIC, als auch eine 
 \vspace{0.5cm}
 
 
-Bei der Segmentierung geht es darum, ein konsistentes Labeling der Superpixel zu erreichen. Dies wird über die Aktivität der Kanten erreicht, welche an- oder ausgeschaltet sein können. Für die Aktivität einer Kante $y$ gilt somit: $y \in \{\text{0, 1}\}$, wobei $1$ aktiv und $0$ inaktiv bedeutet. \\
+Bei der Segmentierung geht es darum, ein konsistentes Labeling der Superpixel zu erreichen. Die Menge aller Superpixel mit dem selben Label entspricht einem Gebiet, welches semantisch möglichst einheitlich sein soll. Dies wird über die Aktivität der Kanten erreicht, welche an- oder ausgeschaltet sein können. Für die Aktivität einer Kante $y$ gilt somit: $y \in \{\text{0, 1}\}$, wobei $1$ aktiv und $0$ inaktiv bedeutet. \\
 Konsistent ist eine Segmentierung genau dann, wenn bei aktiven Kanten die zugehörigen Superpixel verschiedene Labels haben und analog bei inaktiven Kanten die Superpixel die gleichen Labels. Anschaulich gesehen ist dies der Fall, wenn alle aktiven Kanten geschlossene Linien bilden.
 
 
 \section{Feature Space}\label{sec:featureSpace}
 
-Der Feature Space $X \in \mathbb{R}^{|E|xD}$ ordnet jeder Kante D Features zu, die möglichst in Korrelation zur Frage stehen, ob die betrachtete Kante nun aktiv oder inaktiv sein soll. Zu den in dieser Arbeit verwendeten Feature wird in \ref{sec:exp_featureSpace} genauer eingegangen.
+Der Feature Space $X \in \mathbb{R}^{|E|xD}$ ordnet jeder Kante D Features zu, die möglichst in Korrelation zur Frage stehen, ob die betrachtete Kante aktiv oder inaktiv sein soll. Zu den in dieser Arbeit verwendeten Feature wird in \ref{sec:exp_featureSpace} genauer eingegangen.
 
 
 
@@ -92,11 +92,11 @@ Es werden also die Labels der Superpixel untersucht und bei fehlender Übereinst
 
 \section{Structured Learning}\label{sec:strucLearn}
 
-Allgemein wird beim Lernprozess eine Abbildung $f: X \rightarrow Y$ gesucht, welche die Feature $X$ in einen Output $Y$ überführt. Der Hauptunterschied zum unstrukturierten Lernen besteht nun in der Form dieses Outputs. Je nach Klassifikations- oder Regressionsproblem besteht beim unstrukturierten Lernen der Output entweder aus Klassen oder reellen Zahlen. Beim strukturierten Lernen hingegen existiert ein zulässiges Set an Outputs, welche einer gewissen Struktur genügen. In unserem Fall ist diese Struktur die konsistente Segmentierung. Man kann unser Problem auch als Klassifikationsproblem der Kanten mit Nebenbedingungen betrachten. Da somit die einzelnen Outputs $y \in Y$ miteinander in Verbindung stehen, muss beim Lernprozess der Loss gemeinsam für alle $y$ berechnet werden.
+Allgemein wird beim Lernprozess eine Abbildung $f: X \rightarrow Y$ gesucht, welche die Feature $X$ in einen Output $Y$ überführt. Der Hauptunterschied zum unstrukturierten Lernen besteht in der Form dieses Outputs. Je nach Klassifikations- oder Regressionsproblem besteht beim unstrukturierten Lernen der Output entweder aus Klassen oder reellen Zahlen. Beim strukturierten Lernen hingegen existiert eine zulässige Menge an Outputs, welche einer gewissen Struktur genügen. In unserem Fall ist diese Struktur die konsistente Segmentierung. Man kann unser Problem auch als Klassifikationsproblem der Kanten mit Nebenbedingungen betrachten. Da somit die einzelnen Outputs $y \in Y$ miteinander in Verbindung stehen, muss beim Lernprozess der Loss gemeinsam für alle $y$ berechnet werden.
 
 Beim Multicut Problem \eqref{eq:mp} wird $f$ durch die Weights $w$ spezifiziert, welche je nach Abstiegsverfahren und Loss unterschiedlich erlangt werden. Die konkreten Methoden werden in den folgenden Kapiteln erläutert. 
 
-Ein weiterer Unterschied besteht in der Wahl der Loss-Funktion, welche in Kapitel \ref{sec:loss-fkts} vorgestellt wurden. Beim unstrukturierten Lernen wird bei der Klassifikation oft der 0-1-Loss genommen, bei dem der Output entweder der Ground Truth entspricht, oder eben nicht. Aufgrund der Struktur der Lösung ist dies hier allerdings nicht sonderlich sinnvoll da es eben schlechtere und bessere Segmentierungen gibt und diese Abstufungen unterschieden werden sollten, was beispielsweise durch die genannten Loss Funktionen ermöglicht wird.
+Ein weiterer Unterschied besteht in der Wahl der Loss-Funktion, welche in Kapitel \ref{sec:loss-fkts} vorgestellt wurden. Beim unstrukturierten Lernen wird bei der Klassifikation oft der $0$-$1$-Loss genommen, bei dem der Output entweder der Ground Truth entspricht, oder eben nicht. Aufgrund der Struktur der Lösung ist dies hier allerdings nicht sinnvoll, da es bessere und schlechtere Segmentierungen gibt. Diese Abstufungen sollten unterschieden werden, was beispielsweise durch die genannten Loss Funktionen ermöglicht wird.
 
 
 %Um später mithilfe des Multicut Algorithmus Bilder optimal segmentieren zu können, muss der Parameter $w$ aus \eqref{eq:mp} bestimmt werden. 
@@ -148,7 +148,7 @@ Im folgenden wird die hier angewandte Methode zur Ermittlung der Gradientenricht
 \end{algorithmic}
 \end{algorithm}
 
-Um die Gradientenrichtung zu bestimmen wird zunächst in \#Perturbs verschiedene normalverteilte Richtungen, der momentanen Weights aus, der Loss auf dem aktuellen Bild berechnet. Anschließend werden die einzelnen Richtungen nach ihrem Loss gewichtet, wodurch man eine Richtung starken Anstieges ermittelt hat. Daher ist am Ende noch ein Vorzeichenwechsel nötig.
+Um die Gradientenrichtung zu bestimmen, wird zunächst für \#Perturbs verschiedene normalverteilte Richtungen der Loss auf dem aktuellen Bild berechnet, ausgehend von den momentanen Weights. Anschließend werden die einzelnen Richtungen nach ihrem Loss gewichtet, wodurch man eine Richtung starken Anstieges ermittelt hat. Daher ist am Ende noch ein Vorzeichenwechsel nötig.
 
 \vspace{1cm}
 
@@ -170,7 +170,7 @@ Um die Gradientenrichtung zu bestimmen wird zunächst in \#Perturbs verschiedene
 			\State Save $w_{best} = w$
 			\State Break
 		\EndIf
-		\State Memorize $\mathcal{L}$ and associated varied Weight Vector
+		\State Memorize $\mathcal{L}$ and associated varied weight vector
 	\EndFor
 	\State $w = w_{var}$, where regarding Loss is minimal
 	\State \Return $w$

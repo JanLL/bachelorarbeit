@@ -2,7 +2,7 @@
 \chapter{Einleitung}\label{ch:introduction}
 %************************************************
 
-Das weite Forschungsfeld der Bildsegmentierung handelt von der Problemstellung, Bilder automatisiert in einzelne semantisch sinnvolle Segmente zu unterteilen. Anwendungsgebiete finden sich unter anderem in der Objekterkennung, Biologie, Medizin und allgemein Bildanalyse-Methoden, wobei die Segmentierung als Vorstufe zur weiteren Bearbeitung dient. \\
+Das weite Forschungsfeld der Bildsegmentierung beschäftigt sich mit der Problemstellung, Bilder automatisiert in einzelne semantisch sinnvolle Segmente zu unterteilen. Anwendungsgebiete finden sich unter anderem in der Objekterkennung, Biologie, Medizin und allgemein Bildanalyse-Methoden, wobei die Segmentierung als Vorstufe zur weiteren Bearbeitung dient. \\
 
 
 
@@ -22,7 +22,7 @@ Das weite Forschungsfeld der Bildsegmentierung handelt von der Problemstellung, 
 \vspace{0.8cm}
 
 
-Dieser Prozess soll Lern-basiert sein, d.h. es werden dem Algorithmus Trainingsdaten mit Beispielbildern inklusive Soll-Segmentierung (Ground Truth) übergeben. Anhand dieser werden Parameter optimiert um möglichst allgemeingültig, den Trainingsdaten ähnliche, Bilder ebenso in einzelne Segmente gliedern zu können.
+Dieser Prozess soll lern-basiert sein, d.h. es werden dem Algorithmus Trainingsdaten mit Beispielbildern inklusive Soll-Segmentierung (Ground Truth) übergeben. Anhand dieser werden Parameter optimiert um möglichst allgemeingültig, den Trainingsdaten ähnliche, Bilder ebenso in einzelne Segmente gliedern zu können.
 
 In dieser Arbeit handelt es sich um strukturelles Lernen da nicht jede Kante des Graphs für sich genommen betrachtet wird, sondern das Bild als Ganzes. Dies wirkt sich auch auf die Möglichkeiten von Loss-Funktionen aus, die Meta-Informationen der Bilder nutzen können, die beim unstrukturierten Lernen nicht zur Verfügung stehen.
 
@@ -34,9 +34,9 @@ In diesem Sinne wird nun die Loss-Funktion Variation of Information (VOI) zur Qu
 
 Bisher wird beim Hamming Loss jede einzelne Kante der Segmentierung überprüft, ob diese in der Ground Truth ebenso vorhanden ist oder nicht. Bei einer leicht verschobenen Segmentierung führt dies zu einem extrem hohen Loss, obwohl die Segmentierung nicht viel schlechter ist als die der Ground Truth. Dieser Fall kann beispielsweise eintreten wenn der Ground Truth Ersteller unsauber gearbeitet hat, was durchaus vorkommen kann wenn man davon etliche erstellt. Außerdem ist es oft Interpretationssache, wo nun genau eine Kante eines Objektes verläuft, wenn sich der zugehörige Gradient des Bildes über eine gewisse Fläche streckt. 
 
-Mittels Variation of Information sollen nun diese Nachteile beseitigt werden. Man betrachtet hierbei nicht mehr den Zustand jeder einzelnen Kante, ob diese nun an oder aus ist, sondern  die einzelnen segmentierten Flächen. Die exakte mathematische Berechnung folgt in den theoretischen Grundlagen (\ref{sec:voi}), anschaulich gesehen werden allerdings nur die Flächen bestraft, die ein unterschiedliches Label als die Ground Truth haben.
+Mittels Variation of Information sollen nun diese Nachteile beseitigt werden. Man betrachtet hierbei nicht mehr den Zustand jeder einzelnen Kante, ob diese nun an oder aus ist, sondern  die einzelnen segmentierten Flächen. Die exakte mathematische Berechnung folgt in den theoretischen Grundlagen (\ref{sec:voi}). Anschaulich gesehen werden allerdings nur die Flächen bestraft, die ein unterschiedliches Label als die Ground Truth haben.
 
-Abb. \ref{fig:motivation-1} veranschaulicht dies nun: Der schwarze Bereich entspricht der zu segmentierenden Struktur und die rote Linie wäre die zugehörige Ground Truth. Beim Hamming Loss wären sowohl die äußeren Kanten der schwarzen Struktur, als auch die Kanten der roten Linie nicht korrekt, was einen hohen Loss zur Folge hätte. Bei Variation of Information hingegen wird die rosa Fläche als Loss gezählt und ist infolgedessen deutlich geringer da die Segmentierung fast der Ground Truth entspricht.
+Abb. \ref{fig:motivation-1} veranschaulicht dies: Der schwarze Bereich entspricht der zu segmentierenden Struktur und die rote Linie wäre die zugehörige Ground Truth. Beim Hamming Loss wären sowohl die äußeren Kanten der schwarzen Struktur, als auch die Kanten der roten Linie nicht korrekt, was einen hohen Loss zur Folge hätte. Bei Variation of Information hingegen wird die rosa Fläche als Loss gezählt und ist infolgedessen deutlich geringer da die Segmentierung fast der Ground Truth entspricht.
 
 In Abb. \ref{fig:motivation-2} ist ein Beispiel solch eines natürlichen Bildes dargestellt, wo es absolut nicht eindeutig ist, wo genau die Ground Truth zu zeichnen ist.
 
@@ -52,7 +52,7 @@ In Abb. \ref{fig:motivation-2} ist ein Beispiel solch eines natürlichen Bildes 
 	\label{fig:motivation-2}}
 \end{figure}
 \vspace{-0.5cm}
-\captionof{figure}{Beispielbild mit idealer Segmentierung, die es gilt zu erhalten}
+\captionof{figure}{}
 \label{fig:motivation}
 
 
