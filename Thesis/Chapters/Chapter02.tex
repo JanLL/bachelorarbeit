@@ -92,11 +92,14 @@ Es werden also die Labels der Superpixel untersucht und bei fehlender Übereinst
 
 \section{Structured Learning}\label{sec:strucLearn}
 
-Allgemein wird beim Lernprozess eine Abbildung $f: X \rightarrow Y$ gesucht, welche die Feature $X$ in einen Output $Y$ überführt. Der Hauptunterschied zum unstrukturierten Lernen besteht in der Form dieses Outputs. Je nach Klassifikations- oder Regressionsproblem besteht beim unstrukturierten Lernen der Output entweder aus Klassen oder reellen Zahlen. Beim strukturierten Lernen hingegen existiert eine zulässige Menge an Outputs, welche einer gewissen Struktur genügen. In unserem Fall ist diese Struktur die konsistente Segmentierung. Man kann unser Problem auch als Klassifikationsproblem der Kanten mit Nebenbedingungen betrachten. Da somit die einzelnen Outputs $y \in Y$ miteinander in Verbindung stehen, muss beim Lernprozess der Loss gemeinsam für alle $y$ berechnet werden.
+Allgemein wird beim Lernprozess eine Abbildung $f: X \rightarrow Y$ gesucht, welche die Feature $X$ in einen Output $Y$ überführt. Der Hauptunterschied zum unstrukturierten Lernen besteht in der Form dieses Outputs. Je nach Klassifikations- oder Regressionsproblem besteht beim unstrukturierten Lernen der Output entweder aus Klassen oder reellen Zahlen. Beim strukturierten Lernen hingegen existiert eine zulässige Menge an Outputs, welche einer gewissen Struktur genügen. In unserem Fall ist dies die konsistente Segmentierung.
+ 
+Da somit alle Komponenten (Kanten) eines Outputs $y \in Y$ miteinander in Verbindung stehen, müssen beim Lernprozess alle Kanten und auch der Loss gemeinsam bestimmt werden. Diese gemeinsame Berechnung vieler Komponenten unterscheidet unstrukturiertes und strukturelles Lernen.
 
-Beim Multicut Problem \eqref{eq:mp} wird $f$ durch die Weights $w$ spezifiziert, welche je nach Abstiegsverfahren und Loss unterschiedlich erlangt werden. Die konkreten Methoden werden in den folgenden Kapiteln erläutert. 
 
-Ein weiterer Unterschied besteht in der Wahl der Loss-Funktion, welche in Kapitel \ref{sec:loss-fkts} vorgestellt wurden. Beim unstrukturierten Lernen wird bei der Klassifikation oft der $0$-$1$-Loss genommen, bei dem der Output entweder der Ground Truth entspricht, oder eben nicht. Aufgrund der Struktur der Lösung ist dies hier allerdings nicht sinnvoll, da es offensichtlich bessere und schlechtere Segmentierungen gibt. Diese Abstufungen sollten unterschieden werden, was beispielsweise durch die genannten Loss Funktionen ermöglicht wird.
+Ein weiterer Unterschied besteht in der Wahl der Loss-Funktion, welche in Kapitel \ref{sec:loss-fkts} vorgestellt wurden. Beim unstrukturierten Lernen wird bei der Klassifikation oft der $0$-$1$-Loss genommen, bei dem der Output entweder der Ground Truth entspricht, oder eben nicht. Aufgrund der Struktur der Lösung ist dies hier allerdings nicht sinnvoll, da es offensichtlich bessere und schlechtere Segmentierungen gibt. Diese Abstufungen sollten unterschieden werden, was beispielsweise durch die genannten Loss Funktionen ermöglicht wird. \\
+
+Beim Lernprozess in dieser Arbeit werden die Weights $w$ des Multicutproblems \eqref{eq:mp} erlernt, welche je nach Abstiegsverfahren und Loss unterschiedlich erlangt werden. Die konkreten Methoden werden in den folgenden Kapiteln erläutert.  
 
 
 %Um später mithilfe des Multicut Algorithmus Bilder optimal segmentieren zu können, muss der Parameter $w$ aus \eqref{eq:mp} bestimmt werden. 
