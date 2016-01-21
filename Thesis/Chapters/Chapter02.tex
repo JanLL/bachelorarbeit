@@ -159,18 +159,23 @@ Um die Gradientenrichtung zu bestimmen, wird zunächst für \#Perturbs verschied
 \begin{algorithm}[H]
 \caption{Line Search and update Weights}\label{alg:sgd_ls}
 \begin{algorithmic}[1]
-\Procedure{LineSearchAndTakeStep($w, \eta, \Delta x$)}{}
+\Procedure{LineSearchAndTakeStep($\eta, It, w, \Delta x, \Delta w_{prev}$)}{}
 	\State $\eta$: Stepwidth
+	\State $It$: Current Iteration
 	\State $w$: Current weight vector
 	\State $\Delta x$: Gradient Descent Direction
+	\State $\Delta w_{prev}$: Step of previous iteration
 	\State
+	\State $\eta_{eff} = \eta / It$
+	\State
+			
 	\For{$n=\{0.1, 0.5, 1.0, 5.0, 10.0\}$}
-		\State Varied Weight Vector $w_{var} = w + \Delta x \cdot n$
+		\State Varied Weight Vector $w_{var} = w + \eta_{eff} \cdot \Delta x \cdot n + m \cdot w_{prev} $
 		\State Calculate mean Loss $\mathcal{L}$ on entire Training Set
 		\State from $w_{var}$
 		\If{$\mathcal{L} < \mathcal{L}_{best}$}
 			\State $\mathcal{L}_{best} = \mathcal{L}$
-			\State Save $w_{best} = w$
+			\State Save $w_{best} = w_{var}$
 			\State Break
 		\EndIf
 		\State Memorize $\mathcal{L}$ and associated varied weight vector
@@ -183,7 +188,7 @@ Um die Gradientenrichtung zu bestimmen, wird zunächst für \#Perturbs verschied
 
 \vspace{0.5cm}
 
-Für äquidistant gewählte Schrittweiten über 2 Größenordnungen wird jeweils der Mittelwert des Losses auf dem gesamten Trainingsset ermittelt und mit dem bisher besten Wert verglichen. Bei Erreichen eines neuen Tiefpunktes, wird direkt dorthin gesprungen, andernfalls wird die Schrittweite mit dem Niedrigsten erreichten Loss gewählt.
+Zuerst wird eine effektive Schrittweite berechnet, die zusammen mit der momentanen Iteration abnimmt um Konvergenz zu gewährleisten. Anschließend wird für äquidistant gewählte Schrittweiten über 2 Größenordnungen jeweils der Mittelwert des Losses auf dem gesamten Trainingsset ermittelt und mit dem bisher besten Wert verglichen. Bei Erreichen eines neuen Tiefpunktes wird direkt dorthin gesprungen, andernfalls wird die Schrittweite mit dem Niedrigsten erreichten Loss gewählt. Erwähnenswert ist hier der Momentum-Term $m \cdot w_{prev}$, der Oszillationen auf dem Weg zum Minimum vermeiden soll und m als Parameter dient.
 
 
 
