@@ -1,9 +1,9 @@
 %*****************************************
 \chapter{Theoretische Grundladen}\label{ch:theoretischeGrundlagen}
 %*****************************************
-\section{Graphen Theorie}\label{sec:graphTheory}
+\section{Graphentheorie}\label{sec:graphTheory}
 
-Die Grundlage aller weiteren Betrachtungen ist ein Region Adjacency Graph (RAG). Um diesen zu erstellen, wird das Bild zunächst mithilfe des SLIC-Algorithmus \cite{slic} in Superpixel unterteilt, dessen Ränder möglichst an den Objektkonturen verlaufen. Die grundsätzliche Idee ist die, Schwerpunkte bezüglich Distanz und Farbe für jeden Superpixel zu bilden und iterativ Pixel einem Schwerpunkt mit möglichst kleiner Farb-Raum-Distanz zuzuordnen. 
+Die Grundlage aller weiteren Betrachtungen ist ein Region Adjacency Graph (RAG). Um diesen zu erstellen, wird das Bild zunächst mithilfe des SLIC-Algorithmus \cite{slic} in Superpixel unterteilt, dessen Ränder möglichst an den Objektkonturen verlaufen. Die zugrunde liegende Idee ist, die Schwerpunkte bezüglich Distanz und Farbe für jeden Superpixel zu bilden und iterativ Pixel einem Schwerpunkt mit möglichst kleiner Farb-Raum-Distanz zuzuordnen. 
 
 Die Betrachtung auf Superpixel- statt auf Pixelebene ist notwendig da das zu lösende Multicut Problem NP-hard ist und deshalb die Anzahl der Kanten des Graphs mithilfe von Superpixeln reduziert werden muss.
 
@@ -50,13 +50,14 @@ Die Aufgabe, eine konsistente Segmentierung anhand der durch den Feature Space b
 \end{equation}
 
 
-Hierbei entspricht $w \in \mathbb{R}^D$ den Weights der einzelnen Feature und $\beta_e \in \mathbb{R}^D$ den Funktionswerten der D extrahierten Informationen des Feature Spaces bezüglich Kante $e$. Die Nebenbedingungen erzwingen die Konsistenz der Segmentierung. $P(y)$ ist hierbei der kürzeste Pfad über inaktive Kanten der beiden Superpixel, die benachbart zu $y$ sind. In der Praxis wird das Minimierungsproblem zunächst ohne Constraints gelöst und anschließend solange für diejenigen Kanten hinzugefügt, die die Konsistenzbedingung verletzen, bis Konsistenz erreicht ist.
+Hierbei entspricht $w \in \mathbb{R}^D$ den Weights der einzelnen Feature und $\beta_e \in \mathbb{R}^D$ den Funktionswerten der D extrahierten Informationen des Feature Spaces bezüglich Kante $e$. Die Nebenbedingungen erzwingen die Konsistenz der Segmentierung. $P(y)$ ist hierbei der kürzeste Pfad über inaktive Kanten der beiden Superpixel, die benachbart zu $y$ sind. In der Praxis wird das Minimierungsproblem zunächst ohne Constraints gelöst und anschließend solange Constraints für diejenigen Kanten hinzugefügt, die die Konsistenzbedingung verletzen, bis Konsistenz erreicht ist.
 
 \section{Loss Funktionen}\label{sec:loss-fkts}
 
 Mithilfe einer Loss Funktion $\mathcal{L}(y, y^*)$ wird quantifiziert, wie gut eine Segmentierung $y$ mit derjenigen der Ground Truth $y^*$ übereinstimmt. In dieser Arbeit wird die Methode Variation of Information vorgestellt und mit der bestehenden des Hamming Loss verglichen.
 
 \subsection{Hamming Loss}
+
 
 \begin{equation}
 \mathcal{L}_i(y_i, y_i^*) = \left\{ \begin{array}{lcc}  
@@ -73,6 +74,7 @@ Mithilfe einer Loss Funktion $\mathcal{L}(y, y^*)$ wird quantifiziert, wie gut e
 Es werden direkt die Kanten der Segmentierung $y$ und der Ground Truth $y^*$ verglichen und bei fehlender Übereinstimmung erhöht sich der Loss. Meist ist $\alpha_{under} > \alpha_{over}$ um Übersegmentierung zu bevorzugen, da es tragischer ist Objekte nicht zu erfassen, als sie in mehreren Teilen vorzufinden. 
 
 \subsection{Variation of Information}\label{sec:voi}
+
 
 \begin{equation}
 \mathcal{L}_{VOI}(y, y^*) = H_y + H_{y^*} - 2 \cdot I(y, y^*)
@@ -97,7 +99,7 @@ Allgemein wird beim Lernprozess eine Abbildung $f: X \rightarrow Y$ gesucht, wel
 Da somit alle Komponenten (Kanten) eines Outputs $y \in Y$ miteinander in Verbindung stehen, müssen beim Lernprozess alle Kanten und auch der Loss gemeinsam bestimmt werden. Diese gemeinsame Berechnung vieler Komponenten unterscheidet unstrukturiertes und strukturelles Lernen.
 
 
-Ein weiterer Unterschied besteht in der Wahl der Loss-Funktion, welche in Kapitel \ref{sec:loss-fkts} vorgestellt wurden. Beim unstrukturierten Lernen wird bei der Klassifikation oft der $0$-$1$-Loss genommen, bei dem der Output entweder der Ground Truth entspricht, oder eben nicht. Aufgrund der Struktur der Lösung ist dies hier allerdings nicht sinnvoll, da es offensichtlich bessere und schlechtere Segmentierungen gibt. Diese Abstufungen sollten unterschieden werden, was beispielsweise durch die genannten Loss Funktionen ermöglicht wird. \\
+Ein weiterer Unterschied besteht in der Wahl der Loss-Funktion, welche in Kapitel \ref{sec:loss-fkts} vorgestellt wurden. Beim unstrukturierten Lernen wird bei der Klassifikation oft der $0$-$1$-Loss benutzt, bei dem der Output entweder der Ground Truth entspricht, oder eben nicht. Aufgrund der Struktur der Lösung, welche aus einer Vielzahl von Kanten besteht, ist dies für das vorliegenden Problem allerdings nicht sinnvoll, da es offensichtlich bessere und schlechtere Segmentierungen gibt. Diese Abstufungen sollten unterschieden werden, was beispielsweise durch die genannten Loss Funktionen ermöglicht wird. \\
 
 Beim Lernprozess in dieser Arbeit werden die Weights $w$ des Multicutproblems \eqref{eq:mp} erlernt, welche je nach Abstiegsverfahren und Loss unterschiedlich erlangt werden. Die konkreten Methoden werden in den folgenden Kapiteln erläutert.  
 
@@ -112,9 +114,9 @@ Beim Lernprozess in dieser Arbeit werden die Weights $w$ des Multicutproblems \e
 
 \subsection{Subgradient Descent}
 
-Der Subgradient Descent Algorithmus basiert auf der Berechnung der Differenz der akkumulierten Feature der Segmentierung $y$ und der Ground Truth $y^*$, welche gewichtet den Weights $w$ hinzu addiert werden. In \cite{NowozinStrucLearn11} wird der Algorithmus ausführlich ausgeführt. 
+Der Subgradient Descent Algorithmus basiert auf der Berechnung der Differenz der akkumulierten Feature der Segmentierung $y$ und der Ground Truth $y^*$, welche gewichtet den Weights $w$ hinzu addiert werden. In \cite{NowozinStrucLearn11} wird der Algorithmus ausführlich erläutert. 
 
-Die Berechnung des Loss findet hier beim Lösen des Multicut Problems statt, sodass dieses wie folgt aussieht:
+Die Berechnung des Loss findet hier beim Lösen des Multicut Problems statt, so dass dieses wie folgt aussieht:
 
 \begin{equation} 
 \begin{array}{rrclcl}
@@ -130,7 +132,7 @@ Die Minimierung des Hamming Loss wird in dieser Arbeit hiermit realisiert.
 
 Der hier verwendete Stochastic Gradient ist eine Variante des in \cite{NowozinStrucLearn11} näher erläuterten Algorithmus. Anders als beim Subgradient Descent wird hier zunächst das Multicut Problem ohne Loss \eqref{eq:mp} gelöst und anschließend der Loss der resultierenden Segmentierung berechnet.
 
-Im folgenden wird die hier angewandte Methode zur Ermittlung der Gradientenrichtung (Alg. \ref{alg:sg_dir}), sowie der Liniensuche (Alg. \ref{alg:sgd_ls}), also der Schrittweite pro Iterationsschritt beschrieben: \\
+Im Folgenden wird die hier angewandte Methode zur Ermittlung der Gradientenrichtung (Alg. \ref{alg:sg_dir}), sowie der Liniensuche (Alg. \ref{alg:sgd_ls}), also der Schrittweite pro Iterationsschritt beschrieben: \\
 
 \begin{algorithm}[H]
 \caption{Get Gradient Descent Direction}\label{alg:sg_dir}
@@ -188,7 +190,7 @@ Um die Gradientenrichtung zu bestimmen, wird zunächst für \#Perturbs verschied
 
 \vspace{0.5cm}
 
-Zuerst wird eine effektive Schrittweite berechnet, die zusammen mit der momentanen Iteration abnimmt um Konvergenz zu gewährleisten. Anschließend wird für äquidistant gewählte Schrittweiten über 2 Größenordnungen jeweils der Mittelwert des Losses auf dem gesamten Trainingsset ermittelt und mit dem bisher besten Wert verglichen. Bei Erreichen eines neuen Tiefpunktes wird direkt dorthin gesprungen, andernfalls wird die Schrittweite mit dem Niedrigsten erreichten Loss gewählt. Erwähnenswert ist hier der Momentum-Term $m \cdot w_{prev}$, der Oszillationen auf dem Weg zum Minimum vermeiden soll und m als Parameter dient.
+Zuerst wird eine effektive Schrittweite berechnet, die mit zunehmendem Iterationsfortschritt abnimmt um Konvergenz zu gewährleisten. Anschließend wird für äquidistant gewählte Schrittweiten über 2 Größenordnungen jeweils der Mittelwert des Losses auf dem gesamten Trainingsset ermittelt und mit dem bisher besten Wert verglichen. Bei Erreichen eines neuen lokalen Minimums wird direkt dorthin gesprungen, andernfalls wird die Schrittweite mit dem Niedrigsten erreichten Loss gewählt. Erwähnenswert ist hier der Momentum-Term $m \cdot w_{prev}$, der Oszillationen auf dem Weg zum Minimum vermeiden soll, wobei m als Parameter dient.
 
 
 
