@@ -1,0 +1,200 @@
+\documentclass{beamer}
+
+\usepackage[ngerman]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath,amsfonts,amssymb}
+
+\usepackage[absolute,overlay]{textpos}
+
+
+\usetheme{Luebeck}
+\usecolortheme{orchid}
+
+\title{Bachelor Thesis}
+\subtitle{Vergleich von Hamming- und Variation of Information-Loss basiertem strukturiertem Parameterlernen beim Multicut Problem}
+\author{Jan Lammel}
+
+\begin{document}
+	
+\frame{\titlepage}
+
+\frame{
+	\frametitle{Inhaltsverzeichnis}
+	\tableofcontents[hideallsubsections]
+	
+}
+
+\section{Einleitung}
+
+\subsection{Problemstellung}
+
+\frame{
+	\frametitle{Segmentierung}
+	\begin{textblock}{5}(1, 4.5)
+		\includegraphics[width=1.0\textwidth]{images/80090.png}
+	\end{textblock}
+	\begin{textblock}{5}(9, 4.5)
+		\includegraphics[width=1.0\textwidth]{images/80090_gtg.png}
+	\end{textblock}	
+}
+	
+\frame{
+	\frametitle{Motivation Variation of Information}
+	\begin{textblock}{5}(1, 4.5)
+		\includegraphics[width=1.0\textwidth]{images/159022.jpg}
+	\end{textblock}
+	\begin{textblock}{5}(1, 10)
+		\includegraphics[width=1.0\textwidth]{images/motivation.png}
+	\end{textblock}	
+
+	\begin{textblock}{9}(6.5, 4.5)
+		\begin{itemize}
+			\item Hamming Loss stark abhaengig vom genauen Verlauf der Segmentierung
+			\item Aber: Verlauf der Segmentierung oft nicht eindeutig
+			\item Idee VOI: Betrachte Label der Segmentierung und bestrafe flaechenabhaengig 
+		\end{itemize}
+	\end{textblock}
+}
+
+\section{Theoretische Grundlagen}
+\subsection{Region Adjacency Graph}
+\frame{
+	\frametitle{Region Adjacency Graph (RAG)}
+	\begin{textblock}{4}(1, 4.5)
+		\includegraphics[width=1.0\textwidth]{images/rag2rot.png}
+	\end{textblock}
+	
+	\begin{textblock}{9}(6.5, 5.5)
+		\begin{itemize}
+			\item Bild mittels SLIC in \textcolor{red}{Superpixel} (SP) unterteilt
+			\item Jeder Superpixel $\hat{=}$ \textcolor[rgb]{0.1333,0.576,0.165}{Knoten} im RAG
+			\item Direkt benachbarte SP erzeugen \textcolor{blue}{Kanten} zwischen entsprechenden Knoten
+		\end{itemize}
+	\end{textblock}
+}
+
+
+\subsection{Multicut Problem}
+\frame{
+	\frametitle{Multicut Problem (MP)}
+	\begin{textblock}{16}(0,5)
+		
+		\begin{equation*} 
+		\begin{array}{rrclcl}
+		\displaystyle \min_{y} & \sum\limits_{y_i \in E} \langle w, \beta_e \rangle \cdot y_i \\
+		\textrm{s.t.} &  y - \sum\limits_{y_i \in P(y)} y_i & \le & 0 & & \forall \ y \in E
+		\end{array}
+		\label{eq:mp}
+		\end{equation*}
+	\end{textblock}
+}
+
+\subsection{Loss Funktionen}
+\frame{to-do}
+
+\subsection{Structured Learning}
+\frame{to-do}
+	
+\section{Experimentelles Setup}
+\subsection{Trainings- und Testdaten}
+\frame{
+	\frametitle{Trainings- und Testdaten}
+	\begin{textblock}{14}(1,5)
+		\begin{itemize}
+			\item Natuerliche Bilder vom Berkeley Segmentation Dataset (BSD-500) \\
+			\item Davon die 200 Bilder des Testsets verwendet da hierfuer state-of-the-art Kantendetektoren zur Verfuegung standen \\
+			$\rightarrow$ je 100 Trainings- und Testbilder
+			\item Ground Truth ebenso aus BSD-500 Datensatz (mittels Majority Vote Label der SP bestimmt)
+		\end{itemize}
+	\end{textblock}
+
+}
+
+\subsection{Feature Space}
+\frame{
+	\frametitle{Feature Space}
+	\begin{textblock}{14}(1,5)
+		\begin{itemize}
+			\item Gaussian Gradient Magnitude
+			\item Hessian of Gaussian Eigenwerte
+			\item Laplacian of Gaussian
+			\item Structure Tensor Eigenwerte
+			\item Canny Filter
+			\item $N^4$-Fields \cite{!!!} mit und ohne Gewichtung der Kantenlaenge
+			\item Dollár et. al \cite{!!!} Kantendetektor mit und ohne Gewichtung der Kantenlaenge
+		\end{itemize}
+	\end{textblock}	
+}
+
+\frame{
+	\frametitle{Feature Space}
+	\begin{textblock}{14}(1,5)
+		\begin{itemize}
+			\item Statistische Kenndaten in variablen Bereichen $\tilde{u}$ und $\tilde{v}$ um Kante der SP u und v:
+			\begin{itemize}
+				\item Mean($\tilde{u} + \tilde{v}$)
+				\item Variance($\tilde{u} + \tilde{v}$)
+				\item $\frac{\max{\{\text{Mean}(\tilde{u}), \text{Mean}(\tilde{v}) \}}}{\min{\{\text{Mean}(\tilde{u}), \text{Mean}(\tilde{v})}\}}$
+				\item $\frac{\max{\{\text{Median}(\tilde{u}), \text{Median}(\tilde{v}) \}}}{\min{\{\text{Median}(\tilde{u}), \text{Median}(\tilde{v})}\}}$
+				\item Skewness($\tilde{u} + \tilde{v}$)
+				\item Kurtosis($\tilde{u} + \tilde{v}$)
+			\end{itemize}
+			\item Konstantes Feature zur Beseitigung des Bias der Decision Boundary
+			\item Random Forest Feature aus den bisher genannten
+		\end{itemize}
+	\end{textblock}	
+	
+	\begin{textblock}{6}(8,6.7)
+		\includegraphics[width=1.0\textwidth]{images/bereich-um-sp.png}
+	\end{textblock}
+
+}
+
+
+
+
+\section{Experimente und Resultate}
+\subsection{Stochastic Gradient mit RF Feature}
+\frame{
+	\frametitle{Stochastic Gradient mit RF Feature}
+	\begin{textblock}{14}(1,5)
+		\begin{itemize}
+			\item Einstellungen variiert:
+			\begin{itemize}
+				\item Definitionsbereich Feature Space
+				\item Constraint auf RF Feature
+				\item Subgradient Descent mit/ohne RF Feature 
+			\end{itemize}
+		
+			\item Ergebnisse:
+			\begin{itemize}
+				\item Verringerung des VOI Loss fuehrt auch auf Abfall des Hamming Loss im Trainingsset
+				\item Geschwindigkeit des Abfalls stark von Konfiguration abhängig, \\
+				ausserdem starke Schwankungen da stochastischer Prozess
+				\item Verringerung Loss auf Trainingsset $\propto$ Erhoehung Loss auf Testset \\
+				$\Rightarrow$ Overfit der Trainingsdaten
+				
+			\end{itemize}
+		\end{itemize}
+	\end{textblock}	
+
+}
+
+\subsection{Stochastic Gradient ohne RF Feature}
+\frame{
+
+}
+
+\subsection{Kreuzvalidierung Messung 10}
+\frame{
+
+}
+
+
+\section{Fazit}
+\frame{Fazit}
+
+	
+	
+	
+\end{document}
