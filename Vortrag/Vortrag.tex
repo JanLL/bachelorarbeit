@@ -3,6 +3,13 @@
 \usepackage[ngerman]{babel}
 \usepackage[utf8x]{inputenc}
 \usepackage{amsmath,amsfonts,amssymb}
+%\usepackage[dvipsnames]{xcolor}
+
+\definecolor{GTarea}{RGB}{229, 165, 212}
+\definecolor{GTline}{RGB}{107, 0, 78}
+\definecolor{structure}{RGB}{166, 166, 166}
+
+
 
 \usepackage[absolute,overlay]{textpos}
 
@@ -11,7 +18,8 @@
 \usecolortheme{orchid}
 
 \title{Bachelor Thesis}
-\subtitle{Vergleich von Hamming- und Variation of Information-Loss basiertem strukturiertem Parameterlernen beim Multicut Problem}
+%\subtitle{Vergleich von Hamming- und Variation of Information-Loss basiertem strukturiertem Parameterlernen beim Multicut Problem}
+\subtitle{Comparison of Hamming- and Variation of Information-Loss based structured learning on the Multicut Problem}
 \author{Jan Lammel}
 
 \begin{document}
@@ -19,23 +27,30 @@
 \frame{\titlepage}
 
 \frame{
-	\frametitle{Inhaltsverzeichnis}
+	\frametitle{Table of Contents}
 	\tableofcontents[hideallsubsections]
 	
 }
 
-\section{Einleitung}
+\section{Introduction}
 
-\subsection{Problemstellung}
+\subsection{Problem}
 
 \frame{
-	\frametitle{Segmentierung}
+	\frametitle{Segmentation}
 	\begin{textblock}{5}(1, 4.5)
 		\includegraphics[width=1.0\textwidth]{images/80090.png}
 	\end{textblock}
+	
+	\begin{textblock}{2.5}(6.3, 8)
+		\includegraphics[width=1.0\textwidth]{images/pfeil.png}
+	\end{textblock}
+	
 	\begin{textblock}{5}(9, 4.5)
 		\includegraphics[width=1.0\textwidth]{images/80090_gtg.png}
 	\end{textblock}	
+	
+	
 }
 	
 \frame{
@@ -49,14 +64,14 @@
 
 	\begin{textblock}{9}(6.5, 4.5)
 		\begin{itemize}
-			\item Hamming Loss stark abhaengig vom genauen Verlauf der Segmentierung
-			\item Aber: Verlauf der Segmentierung oft nicht eindeutig
-			\item Idee VOI: Betrachte Label der Segmentierung und bestrafe flaechenabhaengig 
+			\item Hamming Loss strongly dependend on exact path of segmentation
+			\item But: Path of segmentation often not unique
+			\item Idea VOI: Consider labels of segmentation and penanlize area-dependend
 		\end{itemize}
 	\end{textblock}
 }
 
-\section{Theoretische Grundlagen}
+\section{Theory}
 \subsection{Region Adjacency Graph}
 \frame{
 	\frametitle{Region Adjacency Graph (RAG)}
@@ -66,9 +81,9 @@
 	
 	\begin{textblock}{9}(6.5, 5.5)
 		\begin{itemize}
-			\item Bild mittels SLIC in \textcolor{red}{Superpixel} (SP) unterteilt
-			\item Jeder Superpixel $\hat{=}$ \textcolor[rgb]{0.1333,0.576,0.165}{Knoten} im RAG
-			\item Direkt benachbarte SP erzeugen \textcolor{blue}{Kanten} zwischen entsprechenden Knoten
+			\item Image partitioned into \textcolor{red}{Superpixel} (SP) via SLIC
+			\item Each Superpixel $\hat{=}$ \textcolor[rgb]{0.1333,0.576,0.165}{Node} in RAG
+			\item Nodes of adjacent SP are linked by an \textcolor{blue}{Edge}
 		\end{itemize}
 	\end{textblock}
 }
@@ -81,30 +96,44 @@
 		
 		\begin{equation*} 
 		\begin{array}{rrclcl}
-		\displaystyle \min_{y} & \sum\limits_{y_i \in E} \langle w, \beta_e \rangle \cdot y_i \\
+		\displaystyle \min_{y} & \sum\limits_{y_e \in E} \langle w, \beta_e \rangle \cdot y_e \\
 		\textrm{s.t.} &  y - \sum\limits_{y_i \in P(y)} y_i & \le & 0 & & \forall \ y \in E
 		\end{array}
 		\label{eq:mp}
 		\end{equation*}
 	\end{textblock}
+	
+	\begin{textblock}{12}(1,9)
+		\begin{itemize}
+			\item $w$: Weights to be learned
+			\item $\beta_e$: Features of edge $e$
+			\item $y_e$: Activity of edge $e$
+			\item Constraint to enforce consistency
+		\end{itemize}
+	\end{textblock}
 }
 
-\subsection{Loss Funktionen}
-\frame{to-do}
 
-\subsection{Structured Learning}
-\frame{to-do}
-	
-\section{Experimentelles Setup}
-\subsection{Trainings- und Testdaten}
+\subsection{Learning}
 \frame{
-	\frametitle{Trainings- und Testdaten}
+	
+
+
+
+}
+
+
+	
+\section{Experimental Setup}
+\subsection{Training- and Test data}
+\frame{
+	\frametitle{Training- and Test data}
 	\begin{textblock}{14}(1,5)
 		\begin{itemize}
-			\item Natuerliche Bilder vom Berkeley Segmentation Dataset (BSD-500) \\
-			\item Davon die 200 Bilder des Testsets verwendet da hierfuer state-of-the-art Kantendetektoren zur Verfuegung standen \\
-			$\rightarrow$ je 100 Trainings- und Testbilder
-			\item Ground Truth ebenso aus BSD-500 Datensatz (mittels Majority Vote Label der SP bestimmt)
+			\item Natural Images from Berkeley Segmentation Dataset (BSD-500)
+			\item Took thereof the 200 images from the testset due to availability of state-of-the-art contour detectors
+			$\rightarrow$ 100 training- and test- images
+			\item Ground Truth as well from BSD-500 dataset (determined label of SP via majority vote)
 		\end{itemize}
 	\end{textblock}
 
@@ -116,12 +145,12 @@
 	\begin{textblock}{14}(1,5)
 		\begin{itemize}
 			\item Gaussian Gradient Magnitude
-			\item Hessian of Gaussian Eigenwerte
+			\item Hessian of Gaussian Eigenvalues
 			\item Laplacian of Gaussian
-			\item Structure Tensor Eigenwerte
+			\item Structure Tensor Eigenvalues
 			\item Canny Filter
-			\item $N^4$-Fields \cite{!!!} mit und ohne Gewichtung der Kantenlaenge
-			\item Dollár et. al \cite{!!!} Kantendetektor mit und ohne Gewichtung der Kantenlaenge
+			\item $N^4$-Fields \cite{!!!} with and without edge length weighting
+			\item Dollár et. al \cite{!!!} Kantendetektor with and without edge length weighting
 		\end{itemize}
 	\end{textblock}	
 }
@@ -130,7 +159,7 @@
 	\frametitle{Feature Space}
 	\begin{textblock}{14}(1,5)
 		\begin{itemize}
-			\item Statistische Kenndaten in variablen Bereichen $\tilde{u}$ und $\tilde{v}$ um Kante der SP u und v:
+			\item Statistics in area $\tilde{u}$ und $\tilde{v}$ around edge of SP u and v:
 			\begin{itemize}
 				\item Mean($\tilde{u} + \tilde{v}$)
 				\item Variance($\tilde{u} + \tilde{v}$)
@@ -139,8 +168,7 @@
 				\item Skewness($\tilde{u} + \tilde{v}$)
 				\item Kurtosis($\tilde{u} + \tilde{v}$)
 			\end{itemize}
-			\item Konstantes Feature zur Beseitigung des Bias der Decision Boundary
-			\item Random Forest Feature aus den bisher genannten
+			\item Random Forest Feature
 		\end{itemize}
 	\end{textblock}	
 	
@@ -153,26 +181,26 @@
 
 
 
-\section{Experimente und Resultate}
-\subsection{Stochastic Gradient mit RF Feature}
+\section{Experiments and Results}
+\subsection{Stochastic Gradient with RF Feature}
 \frame{
-	\frametitle{Stochastic Gradient mit RF Feature}
+	\frametitle{Stochastic Gradient with RF Feature}
 	\begin{textblock}{14}(1,5)
 		\begin{itemize}
-			\item Einstellungen variiert:
+			\item Varying configurations:
 			\begin{itemize}
-				\item Definitionsbereich Feature Space
-				\item Constraint auf RF Feature
-				\item Subgradient Descent mit/ohne RF Feature 
+				\item Domain Feature Space
+				\item Constraint on RF Feature
+				\item Subgradient Descent with/without RF Feature 
 			\end{itemize}
 		
-			\item Ergebnisse:
+			\item Results:
 			\begin{itemize}
-				\item Verringerung des VOI Loss fuehrt auch auf Abfall des Hamming Loss im Trainingsset
-				\item Geschwindigkeit des Abfalls stark von Konfiguration abhängig, \\
-				ausserdem starke Schwankungen da stochastischer Prozess
-				\item Verringerung Loss auf Trainingsset $\propto$ Erhoehung Loss auf Testset \\
-				$\Rightarrow$ Overfit der Trainingsdaten
+				\item Decrease of VOI Loss leads to decline of Hamming Loss in Trainingsset
+				\item Rate of decrease sensible to configuration, \\
+				besides strong fluctuations due to stochastic process
+				\item Loss decrease on Trainingset $\propto$ Loss increase on Testset \\
+				$\Rightarrow$ Overfit of training data
 				
 			\end{itemize}
 		\end{itemize}
@@ -180,19 +208,130 @@
 
 }
 
-\subsection{Stochastic Gradient ohne RF Feature}
+\subsection{Stochastic Gradient without RF Feature}
 \frame{
+	\frametitle{Stochastic Gradient without RF Feature}
+	\begin{textblock}{14}(1,5)
+		\begin{itemize}
+			\item Varying configurations:
+			\begin{itemize}
+				\item Domain Feature Space
+				\item Constraint on $N^4$ Feature
+			\end{itemize}
+		
+			\item Results:
+			\begin{itemize}
+				\item VOI Loss decrease on Trainingset of approximately 4\%
+				\item Change of Loss on Testset within $1 \sigma$ range of error
+			\end{itemize}
+		\end{itemize}
+	\end{textblock}	
+}
+
+\subsection{Cross Validation Measurement 10}
+\frame{
+	\frametitle{Cross Validation Measurement 10}
+	\begin{textblock}{14}(1,4.5)
+		\begin{itemize}
+			\item Cross validation to minimize measurement errors
+		
+			\item Results on Testset:
+			\begin{itemize}
+				\item $\mathcal{L}_{H}$: $\frac{StochGrad}{SubGrad} = 0.989 \pm 0.005$ \\
+				\vspace{0.1cm} \item $\mathcal{L}_{VOI}$: $\frac{StochGrad}{SubGrad} = 1.0025 \pm 0.0084$ \\
+				\vspace{0.2cm} $\rightarrow$ No significant change
+			\end{itemize}
+		\end{itemize}
+	\end{textblock}	
+}
+
+\frame{
+	\frametitle{Explanation by SLIC}
+	\begin{textblock}{7}(2,5.5)
+		\includegraphics[width=1.0\textwidth]{images/slic-gt1.png}
+	\end{textblock}	
+
+	\begin{textblock}{1}(10, 6)
+		\fboxsep=2mm %\fboxrule=1mm
+		\fcolorbox{black}{GTline}{\null} \\
+		\fcolorbox{black}{GTarea}{\null} \\
+		\fcolorbox{black}{gray}{\null}  \\			
+	\end{textblock}
+	
+	\begin{textblock}{7}(10.7,6.1)
+		Ground Truth Edge \\
+		Ground Truth Area \\
+		Structure \\
+	\end{textblock}
 
 }
 
-\subsection{Kreuzvalidierung Messung 10}
+
 \frame{
+	\frametitle{Explanation by SLIC}
+	\begin{textblock}{7}(2,5.5)
+		\includegraphics[width=1.0\textwidth]{images/slic-gt2.png}
+	\end{textblock}	
+
+	\begin{textblock}{1}(10, 6)
+		\fboxsep=2mm %\fboxrule=1mm
+		\fcolorbox{black}{GTline}{\null} \\
+		\fcolorbox{black}{GTarea}{\null} \\
+		\fcolorbox{black}{gray}{\null}  \\	
+		\fcolorbox{black}{red}{\null}  \\	
+						
+	\end{textblock}
+	
+	\begin{textblock}{7}(10.7,6.1)
+		Ground Truth Edge \\
+		Ground Truth Area \\
+		Structure \\
+		Super Pixel Edges \\
+	\end{textblock}
+
+}
+
+\frame{
+	\frametitle{Explanation by SLIC}
+	\begin{textblock}{7}(2,5.5)
+		\includegraphics[width=1.0\textwidth]{images/slic-gt3.png}
+	\end{textblock}	
+
+	\begin{textblock}{1}(10, 6)
+		\fboxsep=2mm %\fboxrule=1mm
+
+		\fcolorbox{black}{gray}{\null}  \\	
+		\fcolorbox{black}{red}{\null}  \\	
+						
+	\end{textblock}
+	
+	\begin{textblock}{7}(10.7,6.1)
+		Structure \\
+		Super Pixel- \& \\ Ground Truth Edges \\
+	\end{textblock}
 
 }
 
 
-\section{Fazit}
-\frame{Fazit}
+\section{Conclusion}
+\frame{
+	\frametitle{Conclusion}
+
+	
+	\begin{textblock}{14}(1., 5)
+		\begin{itemize}
+			\item Stochastic Gradient with RF Feature leads to Overfit of training data
+			\item No significant change without RF Feature
+			\begin{itemize}
+				\item Bad Ground Truth compensated by SLIC
+				\item Examination on Pixel-level would be interesting
+			\end{itemize}
+			\item Examples were found which confirm theoretical behavior of VOI
+		\end{itemize}
+	\end{textblock}
+
+
+}
 
 	
 	
