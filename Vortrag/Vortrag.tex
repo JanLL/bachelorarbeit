@@ -5,6 +5,8 @@
 \usepackage{amsmath,amsfonts,amssymb}
 %\usepackage[dvipsnames]{xcolor}
 
+\usepackage{algorithm}
+
 \usepackage{tocstyle}
 
 \definecolor{GTarea}{RGB}{229, 165, 212}
@@ -13,14 +15,22 @@
 
 \setbeamertemplate{bibliography item}{\insertbiblabel}
 
+%\beamertemplatenavigationsymbolsempty
 
-%\setbeamertemplate{footline}[frame number] 
+
 
 \usepackage[absolute,overlay]{textpos}
 
 
 \usetheme{Luebeck}
 \usecolortheme{orchid}
+
+\addtobeamertemplate{navigation symbols}{}{%
+    \usebeamerfont{footline}%
+    \usebeamercolor[fg]{footline}%
+    \hspace{1em}%
+    \insertframenumber/14    %\inserttotalframenumber
+}
 
 \title{Bachelor Thesis}
 %\subtitle{Vergleich von Hamming- und Variation of Information-Loss basiertem strukturiertem Parameterlernen beim Multicut Problem}
@@ -466,10 +476,69 @@
 }
 	
 	
+%********** Additional frames with pictures from written Thesis *************%
+
+
+\frame{
+	\begin{textblock}{6}(4,2.5)
+		\includegraphics[width=1.0\textwidth]{images/64061.png}	
+	\end{textblock}
+}
 	
+\frame{
+	\begin{textblock}{6}(1,2.5)
+		\includegraphics[width=1.0\textwidth]{images/268074_gt.png}	
+	\end{textblock}
+	\begin{textblock}{6}(9,2.5)
+		\includegraphics[width=1.0\textwidth]{images/268074_VOI.png}	
+	\end{textblock}	
+}
+
+\frame{
+	\begin{textblock}{10}(3,4.5)
+		\includegraphics[width=1.0\textwidth]{images/bereich-um-sp.png}	
+	\end{textblock}
+}
+
+
+\frame{
+	\begin{textblock}{10}(3,4.5)
+		\includegraphics[width=1.0\textwidth]{images/kanten-gewichtung-pixel-sp.png}	
+	\end{textblock}
+}
+	
+	
+\frame{
+	\begin{textblock}{10}(3,3.5)
+		\includegraphics[width=1.0\textwidth]{images/gt-labels-sp.png}	
+	\end{textblock}
+}
 	
 
+\frame{
+	\begin{textblock}{13}(1.5,3.5)
+		\includegraphics[width=1.0\textwidth]{images/gradientDirectionAlg.png}
+	\end{textblock}
+}
 	
+
+\frame{
+	\begin{textblock}{10.5}(2,2)
+		\includegraphics[width=1.0\textwidth]{images/lineSearchAlg.png}
+	\end{textblock}
+}
+	
+\frame{
+	\begin{textblock}{14}(1,5)
+		\includegraphics[width=1.0\textwidth]{images/hammingLoss.png}
+	\end{textblock}
+}
+
+\frame{
+	\begin{textblock}{14}(1,3.5)
+		\includegraphics[width=1.0\textwidth]{images/voiLoss.png}
+	\end{textblock}
+}
 	
 \end{document}
 
